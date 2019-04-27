@@ -1,0 +1,58 @@
+﻿<Window x:Class="GCManager.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:GCManager"
+        mc:Ignorable="d"
+        Title="Risk of Rain 2 Mod Manager" Height="720" Width="1280">
+    <DockPanel>
+        <Grid Background="#FF404040">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="5"/>
+                <ColumnDefinition Width="330"/>
+            </Grid.ColumnDefinitions>
+
+            <local:ModList x:Name="Mods"/>
+
+            <GridSplitter HorizontalAlignment="Stretch" Margin="0" Grid.Column="1" Background="#FF1E7626"/>
+
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="120"/>
+                    <RowDefinition/>
+                    <RowDefinition Height="52"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="120"/>
+                </Grid.ColumnDefinitions>
+
+                <Canvas Background="Black" Grid.ColumnSpan="2"/>
+                <Image Source="{Binding imageLink, FallbackValue='commando.ico'}" Grid.Column="1" VerticalAlignment="Top" Height="120"/>
+                <TextBlock Text="{Binding name, FallbackValue='Mod Name'}" Margin="10,10,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.459,0.531" Height="28" FontSize="24" FontWeight="Bold" FontFamily="Lucida Console" TextDecorations="Underline" Foreground="#FF00B9FF"/>
+                <TextBlock Text="{Binding author, FallbackValue='Author'}" Margin="10,30,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Foreground="#FFD6D6D6" FontStyle="Italic" FontSize="16" Height="21"/>
+                <TextBlock Text="{Binding description, FallbackValue='description...'}" Margin="20,56,0,0" TextWrapping="Wrap" Foreground="White"/>
+
+                <local:JobList x:Name="Jobs" Grid.Row="1" Grid.ColumnSpan="2"/>
+
+                <Grid Grid.Row="2" Grid.ColumnSpan="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <Button Content="Launch Risk of Rain 2" Grid.ColumnSpan="2" Grid.Row="1" Click="Launch_Click"/>
+                    <Button Content="Open download folder" Grid.Column="1" Click="OpenDownloads_Click"/>
+                    <Button Content="Update all mods" Click="UpdateMods_Click"/>
+                </Grid>
+            </Grid>
+
+
+        </Grid>
+    </DockPanel>
+</Window>
