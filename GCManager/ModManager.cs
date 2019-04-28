@@ -111,9 +111,8 @@ namespace GCManager
                 mod.authorLink = new Uri("https://thunderstore.io/package/" + mod.author);
                 mod.description = manifest.description;
                 mod.version = manifest.version_number;
-
-                if (mod.dependencies != null)
-                    mod.dependencies = manifest.dependencies.ToArray();
+                mod.imageLink = new Uri(Path.Combine(dir, "icon.png"));
+                mod.dependencies = manifest.dependencies.ToArray();
 
                 if (manifest.website_url.Length > 0)
                     mod.modLink = new Uri(manifest.website_url);
