@@ -257,6 +257,14 @@ namespace GCManager
         {
             mod.Uninstall();
             GetEntryInfo(mod).status = EntryStatus.UNINSTALLED;
+
+            //Refresh lists
+            App app = (App)Application.Current;
+            if (app.window != null)
+            {
+                app.window.OnlineMods.modList.UpdateModInstalledStatus();
+                app.window.DownloadedMods.modList.UpdateModInstalledStatus();
+            }
         }
 
         public static void UpdateMod(Mod localMod)

@@ -94,14 +94,6 @@ namespace GCManager
                     Directory.Delete(System.IO.Path.Combine(installDir, "BepInEx"), true);
                     File.Delete(System.IO.Path.Combine(installDir, "winhttp.dll"));
                     File.Delete(System.IO.Path.Combine(installDir, "doorstop_config.ini"));
-
-                    //Refresh lists
-                    App app = (App)Application.Current;
-                    if (app.window != null)
-                    {
-                        app.window.OnlineMods.modList.UpdateModInstalledStatus();
-                        app.window.DownloadedMods.modList.UpdateModInstalledStatus();
-                    }
                 }
                 else
                 {
@@ -151,10 +143,10 @@ namespace GCManager
             this.isInstalled = CheckIfInstalled();
         }
 
-        public Mod(LocalManifest mf, string localDir)
+        public Mod(LocalManifest mf, string downloadDir)
         {
             this.name = mf.name;
-            this.fullName = localDir;
+            this.fullName = new DirectoryInfo(downloadDir).Name;
             this.author = fullName.Substring(0, fullName.LastIndexOf('-'));
 
             this.description = mf.description;
@@ -164,9 +156,12 @@ namespace GCManager
                 this.modLink = new Uri(mf.website_url);
 
             this.authorLink = new Uri("https://thunderstore.io/package/" + this.author);
-            this.imageLink = new Uri(Path.Combine(localDir, "icon.png"));
+            this.imageLink = new Uri(Path.Combine(downloadDir, "icon.png"));
 
-            this.dependencies = mf.dependencies.ToArray();
+            if (mf.dependencies != null)
+                this.dependencies = mf.dependencies.ToArray();
+            else
+                this.dependencies = null;
 
             this.isInstalled = CheckIfInstalled();
         }

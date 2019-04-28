@@ -28,31 +28,12 @@ namespace GCManager
                 OnlineManifest[] entries = JsonConvert.DeserializeObject<OnlineManifest[]>(data);
                 int FirstUnpinnedIndex = 0;
 
-                foreach (OnlineManifest mf in entries)
+                foreach (OnlineManifest manifest in entries)
                 {
-                    Mod mod = new Mod();
-                    mod.name = mf.name;
-                    mod.fullName = mf.full_name;
-                    mod.author = mf.owner;
-                    mod.authorLink = new Uri("https://thunderstore.io/package/" + mod.author);
-                    mod.modLink = new Uri(mf.package_url);
+                    Mod mod = new Mod(manifest);
 
-                    mod.version = mf.versions[0].version_number;
-                    mod.description = mf.versions[0].description;
-                    mod.dependencies = mf.versions[0].dependencies.ToArray();
-                    mod.imageLink = new Uri(mf.versions[0].icon);
-
-                    mod.isInstalled = mod.CheckIfInstalled();
-
-                    mod.downloadCount = 0;
-                    for (int i = 0; i < mf.versions.Length; i++)
-                        mod.downloadCount += mf.versions[i].downloads;
-
-                    if (mf.is_pinned)
-                    {
-                        mod.notes = "Pinned";
+                    if (manifest.is_pinned)
                         collection.Insert(FirstUnpinnedIndex++, mod);
-                    }
                     else
                         collection.Add(mod);
                 }

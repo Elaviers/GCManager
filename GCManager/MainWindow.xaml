@@ -14,7 +14,7 @@
                 <ColumnDefinition Width="380"/>
             </Grid.ColumnDefinitions>
 
-            <TabControl>
+            <TabControl BorderBrush="{x:Null}" Padding="0">
                 <TabItem Header="Online Mods">
                     <local:ModListControl x:Name="OnlineMods"/>
                 </TabItem>

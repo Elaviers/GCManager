@@ -51,7 +51,12 @@ namespace GCManager
             foreach (Mod mod in downloadedModList.collection)
             {
                 ModManager.UninstallMod(mod);
-                Directory.Delete(mod.GetDownloadDirectory(), true);
+
+                try
+                {
+                    Directory.Delete(mod.GetDownloadDirectory(), true);
+                }
+                catch (DirectoryNotFoundException) { }
             }
         }
 

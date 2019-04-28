@@ -28,34 +28,25 @@
         </Style>
     </UserControl.Resources>
 
-    <DockPanel>
-        <Grid DockPanel.Dock="Top">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="24"/>
+            <RowDefinition/>
+            <RowDefinition Height="24"/>
+        </Grid.RowDefinitions>
+        <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="55"/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
-            <Label Content="Filter" Background="#FF5F5F5F" Foreground="White" HorizontalContentAlignment="Center"/>
+            <Label Content="Filter" Background="#FF5F5F5F" Foreground="White" HorizontalContentAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5"/>
             <TextBox Name="FilterBox" Text="{Binding filterText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, FallbackValue='Search text...'}" VerticalContentAlignment="Center" Grid.Column="1"/>
 
         </Grid>
 
-        <Grid DockPanel.Dock="Bottom">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
-            </Grid.ColumnDefinitions>
-
-            <Button Content="Refresh List" Click="Refresh_Click"/>
-            <Button Content="Update Selected Mods" Click="UpdateSelected_Click" Grid.Column="1"/>
-            <Button Content="Install Selected Mods" Click="InstallSelected_Click" Grid.Column="2"/>
-            <Button Content="Uninstall Selected Mods" Click="UninstallSelected_Click" Grid.Column="3"/>
-        </Grid>
-
-        <DataGrid Name="DG" ItemsSource="{Binding}" AutoGenerateColumns="False" Background="#FF230000" 
+        <DataGrid Grid.Row="1" Name="DG" ItemsSource="{Binding}" AutoGenerateColumns="False" Background="#FF230000" 
                       IsSynchronizedWithCurrentItem="False" CanUserAddRows="False" SelectionChanged="DG_SelectionChanged" 
-                      BorderBrush="Black" AlternationCount="2" 
+                      BorderBrush="{x:Null}" AlternationCount="2" 
                       AlternatingRowBackground="#FF3E3E3E" RowBackground="#FF6C6C6C" GridLinesVisibility="None" EnableColumnVirtualization="True" RowHeight="25" UseLayoutRounding="False" ScrollViewer.CanContentScroll="True" VerticalContentAlignment="Center">
             <DataGrid.RowStyle>
                 <Style TargetType="DataGridRow">
@@ -79,5 +70,19 @@
                 <DataGridTextColumn Binding="{Binding notes}" Header="Notes" IsReadOnly="True" Width="50"/>
             </DataGrid.Columns>
         </DataGrid>
-    </DockPanel>
+
+        <Grid Grid.Row="2" Height="20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+
+            <Button Content="Refresh List" Click="Refresh_Click" Padding="0"/>
+            <Button Content="Update Selected Mods" Click="UpdateSelected_Click" Grid.Column="1" Padding="0"/>
+            <Button Content="Install Selected Mods" Click="InstallSelected_Click" Grid.Column="2" Padding="0"/>
+            <Button Content="Uninstall Selected Mods" Click="UninstallSelected_Click" Grid.Column="3" Padding="0"/>
+        </Grid>
+    </Grid>
 </UserControl>

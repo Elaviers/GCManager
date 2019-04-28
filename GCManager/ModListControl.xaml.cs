@@ -93,12 +93,13 @@ namespace GCManager
 
         private void CheckBox_Click(object sender, RoutedEventArgs e)
         {
-            Mod mod = (Mod)DG.SelectedItem;
-
-            if (mod.isInstalled)
-                ModManager.UninstallMod(mod);
-            else
-                ModManager.ActivateMod(mod);
+            foreach (Mod mod in DG.SelectedItems)
+            {
+                if (mod.isInstalled)
+                    ModManager.UninstallMod(mod);
+                else
+                    ModManager.ActivateMod(mod);
+            }
         }
 
         private void DG_PreviewMouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
