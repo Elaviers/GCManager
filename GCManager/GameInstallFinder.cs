@@ -84,6 +84,11 @@ namespace GCManager
             if (result != MessageBoxResult.Yes)
                 return null;
 
+            return FindInstallDir_Dialog();
+        }
+
+        public static string FindInstallDir_Dialog()
+        {
             var ofd = new OpenFileDialog();
             ofd.Title = "Select you Risk of Rain 2 executable";
             ofd.Filter = "Risk Of Rain 2 Executable|Risk Of Rain 2.exe";

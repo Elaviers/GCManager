@@ -7,17 +7,26 @@ namespace GCManager
 {
     public class ManagerInfo
     {
-        public string installDir = null;
+        private static ManagerInfo _instance = null;
 
+        public string installDir = null;
         public string DownloadDirectory = null;
 
-        private static ManagerInfo _instance = null;
+        public static string GetConfigFileName()
+        {
+            return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.json");
+        }
+
+        public string GetFullDownloadDirectory()
+        {
+            return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, this.DownloadDirectory);
+        }
 
         public static ManagerInfo Get()
         {
             if (_instance == null)
             {
-                string configFileName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.json");
+                string configFileName = GetConfigFileName();
 
                 if (File.Exists(configFileName))
                 {
@@ -30,7 +39,6 @@ namespace GCManager
 
                 if (_instance.installDir == null || !Directory.Exists(_instance.installDir))
                 {
-
                     _instance.installDir = GameInstallFinder.FindGameInstallDirectory();
 
                     if (_instance.installDir == null)
@@ -43,19 +51,23 @@ namespace GCManager
                 if (_instance.DownloadDirectory == null)
                     _instance.DownloadDirectory = "Downloads";
 
-                try
-                {
-                    File.WriteAllText(configFileName, JsonConvert.SerializeObject(_instance));
-                }
-                catch (IOException e)
-                {
-                    System.Windows.MessageBox.Show("config write error " + e.ToString());
-                }
-
-                _instance.DownloadDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, _instance.DownloadDirectory);
+                _instance.Save();
             }
 
             return _instance;
+        }
+
+        public void Save()
+        {
+            try
+            {
+                File.WriteAllText(GetConfigFileName(), JsonConvert.SerializeObject(_instance));
+            }
+            catch (IOException e)
+            {
+                System.Windows.MessageBox.Show("config write error " + e.ToString());
+            }
+
         }
 
     }

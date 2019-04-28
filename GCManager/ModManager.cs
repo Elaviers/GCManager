@@ -98,7 +98,7 @@ namespace GCManager
         {
             downloadedMods.Clear();
 
-            foreach (string dir in Directory.GetDirectories(ManagerInfo.Get().DownloadDirectory))
+            foreach (string dir in Directory.GetDirectories(ManagerInfo.Get().GetFullDownloadDirectory()))
             {
                 string json = File.ReadAllText(Path.Combine(dir, "manifest.json"));
 
@@ -111,7 +111,9 @@ namespace GCManager
                 mod.authorLink = new Uri("https://thunderstore.io/package/" + mod.author);
                 mod.description = manifest.description;
                 mod.version = manifest.version_number;
-                mod.dependencies = manifest.dependencies.ToArray();
+
+                if (mod.dependencies != null)
+                    mod.dependencies = manifest.dependencies.ToArray();
 
                 if (manifest.website_url.Length > 0)
                     mod.modLink = new Uri(manifest.website_url);
@@ -200,7 +202,7 @@ namespace GCManager
 
         public static void ActivateMod(Mod mod, string version = null)
         {
-            string downloadDir = Path.Combine(ManagerInfo.Get().DownloadDirectory, mod.fullName);
+            string downloadDir = Path.Combine(ManagerInfo.Get().GetFullDownloadDirectory(), mod.fullName);
 
             if (!Directory.Exists(downloadDir))
             {
@@ -290,7 +292,7 @@ namespace GCManager
             {
                 ZipArchive zip = new ZipArchive(new MemoryStream(zipData));
 
-                string path = Path.Combine(ManagerInfo.Get().DownloadDirectory, mod.fullName);
+                string path = Path.Combine(ManagerInfo.Get().GetFullDownloadDirectory(), mod.fullName);
 
                 foreach (ZipArchiveEntry entry in zip.Entries)
                 {
@@ -367,11 +369,11 @@ namespace GCManager
 
             if (mod.fullName == "bbepis-BepInExPack") //Special case
             {
-                Utility.CopyDirectory(Path.Combine(ManagerInfo.Get().DownloadDirectory, mod.fullName, "BepInExPack"), ManagerInfo.Get().installDir);
+                Utility.CopyDirectory(Path.Combine(ManagerInfo.Get().GetFullDownloadDirectory(), mod.fullName, "BepInExPack"), ManagerInfo.Get().installDir);
             }
             else
             {
-                List<string> dlls = Utility.FindAllFiles(Path.Combine(ManagerInfo.Get().DownloadDirectory, mod.fullName), "*.dll");
+                List<string> dlls = Utility.FindAllFiles(Path.Combine(ManagerInfo.Get().GetFullDownloadDirectory(), mod.fullName), "*.dll");
 
                 if (dlls.Count > 0)
                 {
@@ -494,7 +496,7 @@ namespace GCManager
                     if (localMod.fullName != "bbepis-BepInExPack")
                         UninstallMod(localMod);
 
-                    Directory.Delete(Path.Combine(ManagerInfo.Get().DownloadDirectory, localMod.fullName), true);
+                    Directory.Delete(Path.Combine(ManagerInfo.Get().GetFullDownloadDirectory(), localMod.fullName), true);
 
                     ActivateMod(onlineMod);
                 }
