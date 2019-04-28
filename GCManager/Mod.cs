@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.ComponentModel;
+using System.Collections.ObjectModel;
 
 namespace GCManager
 {
@@ -46,7 +47,7 @@ namespace GCManager
                 Directory.Exists(Path.Combine(ManagerInfo.Get().installDir, "BepInEx", "plugins", this.fullName));
         }
 
-        public static void CheckIfModsInstalled(List<Mod> list)
+        public static void CheckIfModsInstalled(ObservableCollection<Mod> list)
         {
             foreach (Mod mod in list)
             {

@@ -26,7 +26,7 @@ namespace GCManager
 
         private void OpenDownloads_Click(object sender, RoutedEventArgs e)
         {
-            Process.Start("explorer.exe", ManagerInfo.Get().DownloadsFolderName);
+            Process.Start("explorer.exe", ManagerInfo.Get().DownloadDirectory);
         }
 
         private void UpdateMods_Click(object sender, RoutedEventArgs e)

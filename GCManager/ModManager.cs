@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.IO.Compression;
 using System.Net;
@@ -30,8 +31,8 @@ namespace GCManager
             public List<String> dependencies;
         }
 
-        public static List<Mod> downloadedMods = new List<Mod>();
-        public static List<Mod> onlineMods = new List<Mod>();
+        public static ObservableCollection<Mod> downloadedMods = new ObservableCollection<Mod>();
+        public static ObservableCollection<Mod> onlineMods = new ObservableCollection<Mod>();
 
         public static Mod selectedModInfo = new Mod();
 
@@ -45,7 +46,7 @@ namespace GCManager
         private static List<string> _priorityInstalls = new List<string>();
         private static Queue<Mod> _pendingInstalls = new Queue<Mod>();
 
-        public static Mod FindMod(List<Mod> list, string fullName)
+        public static Mod FindMod(ObservableCollection<Mod> list, string fullName)
         {
             foreach (Mod mod in list)
             {
@@ -97,7 +98,7 @@ namespace GCManager
         {
             downloadedMods.Clear();
 
-            foreach (string dir in Directory.GetDirectories(ManagerInfo.Get().DownloadsFolderName))
+            foreach (string dir in Directory.GetDirectories(ManagerInfo.Get().DownloadDirectory))
             {
                 string json = File.ReadAllText(Path.Combine(dir, "manifest.json"));
 
@@ -199,7 +200,7 @@ namespace GCManager
 
         public static void ActivateMod(Mod mod, string version = null)
         {
-            string downloadDir = Path.Combine(ManagerInfo.Get().DownloadsFolderName, mod.fullName);
+            string downloadDir = Path.Combine(ManagerInfo.Get().DownloadDirectory, mod.fullName);
 
             if (!Directory.Exists(downloadDir))
             {
@@ -289,7 +290,7 @@ namespace GCManager
             {
                 ZipArchive zip = new ZipArchive(new MemoryStream(zipData));
 
-                string path = Path.Combine(ManagerInfo.Get().DownloadsFolderName, mod.fullName);
+                string path = Path.Combine(ManagerInfo.Get().DownloadDirectory, mod.fullName);
 
                 foreach (ZipArchiveEntry entry in zip.Entries)
                 {
@@ -366,11 +367,11 @@ namespace GCManager
 
             if (mod.fullName == "bbepis-BepInExPack") //Special case
             {
-                Utility.CopyDirectory(Path.Combine(ManagerInfo.Get().DownloadsFolderName, mod.fullName, "BepInExPack"), ManagerInfo.Get().installDir);
+                Utility.CopyDirectory(Path.Combine(ManagerInfo.Get().DownloadDirectory, mod.fullName, "BepInExPack"), ManagerInfo.Get().installDir);
             }
             else
             {
-                List<string> dlls = Utility.FindAllFiles(Path.Combine(ManagerInfo.Get().DownloadsFolderName, mod.fullName), "*.dll");
+                List<string> dlls = Utility.FindAllFiles(Path.Combine(ManagerInfo.Get().DownloadDirectory, mod.fullName), "*.dll");
 
                 if (dlls.Count > 0)
                 {
@@ -493,7 +494,7 @@ namespace GCManager
                     if (localMod.fullName != "bbepis-BepInExPack")
                         UninstallMod(localMod);
 
-                    Directory.Delete(Path.Combine(ManagerInfo.Get().DownloadsFolderName, localMod.fullName), true);
+                    Directory.Delete(Path.Combine(ManagerInfo.Get().DownloadDirectory, localMod.fullName), true);
 
                     ActivateMod(onlineMod);
                 }

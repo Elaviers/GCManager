@@ -29,6 +29,16 @@
     </UserControl.Resources>
 
     <DockPanel>
+        <Grid DockPanel.Dock="Top">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="55"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Label Content="Filter" Background="#FF5F5F5F" Foreground="White" HorizontalContentAlignment="Center"/>
+            <TextBox Name="FilterBox" Text="{Binding filterText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, FallbackValue='Search text...'}" VerticalContentAlignment="Center" Grid.Column="1"/>
+
+        </Grid>
+
         <Grid DockPanel.Dock="Bottom">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
@@ -50,7 +60,10 @@
         </Grid>
 
         <ScrollViewer>
-            <DataGrid Name="DG" ItemsSource="{Binding}" AutoGenerateColumns="False" Background="#FF230000" IsSynchronizedWithCurrentItem="False" CanUserAddRows="False" SelectionChanged="DG_SelectionChanged" BorderBrush="Black" PreviewMouseWheel="DG_PreviewMouseWheel" AlternationCount="2" AlternatingRowBackground="#FF3E3E3E" RowBackground="#FF6C6C6C" GridLinesVisibility="None">
+            <DataGrid Name="DG" ItemsSource="{Binding}" AutoGenerateColumns="False" Background="#FF230000" 
+                      IsSynchronizedWithCurrentItem="False" CanUserAddRows="False" SelectionChanged="DG_SelectionChanged" 
+                      BorderBrush="Black" PreviewMouseWheel="DG_PreviewMouseWheel" AlternationCount="2" 
+                      AlternatingRowBackground="#FF3E3E3E" RowBackground="#FF6C6C6C" GridLinesVisibility="None">
                 <DataGrid.RowStyle>
                     <Style TargetType="DataGridRow">
                         <Setter Property="Foreground" Value="White"/>
