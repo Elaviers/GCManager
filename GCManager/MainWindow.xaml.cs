@@ -1,10 +1,14 @@
 ﻿using System.Windows;
 using System.Diagnostics;
+using System.IO;
 
 namespace GCManager
 {
     public partial class MainWindow : Window
     {
+        ModListOnline onlineModList = new ModListOnline();
+        ModListDownloaded downloadedModList = new ModListDownloaded();
+
         public MainWindow()
         {
             InitializeComponent();
@@ -18,7 +22,12 @@ namespace GCManager
 
             InstallDirText.Text = ManagerInfo.Get().installDir;
 
-            Mods.GetRelevantMods();
+            ModManager.onlineModList = onlineModList;
+
+            OnlineMods.SetModList(onlineModList);
+            OnlineMods.RefreshList();
+            DownloadedMods.SetModList(downloadedModList);
+            DownloadedMods.RefreshList();
         }
 
         private void Launch_Click(object sender, RoutedEventArgs e)
@@ -33,7 +42,17 @@ namespace GCManager
 
         private void UpdateMods_Click(object sender, RoutedEventArgs e)
         {
-            ModManager.UpdateMods();
+            foreach (Mod mod in downloadedModList.collection)
+                ModManager.UpdateMod(mod);
+        }
+
+        private void DeleteMods_Click(object sender, RoutedEventArgs e)
+        {
+            foreach (Mod mod in downloadedModList.collection)
+            {
+                ModManager.UninstallMod(mod);
+                Directory.Delete(mod.GetDownloadDirectory(), true);
+            }
         }
 
         private void ChangeGameDir_Click(object sender, RoutedEventArgs e)

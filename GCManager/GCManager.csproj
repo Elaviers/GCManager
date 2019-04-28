@@ -87,11 +87,17 @@
     <Compile Include="JobList.xaml.cs">
       <DependentUpon>JobList.xaml</DependentUpon>
     </Compile>
+    <Compile Include="LocalManifest.cs" />
     <Compile Include="ManagerInfo.cs" />
     <Compile Include="GameInstallFinder.cs" />
     <Compile Include="Mod.cs" />
+    <Compile Include="ModList.cs" />
+    <Compile Include="ModListDownloaded.cs" />
+    <Compile Include="ModListOnline.cs" />
     <Compile Include="ModManager.cs" />
+    <Compile Include="OnlineManifest.cs" />
     <Compile Include="Utility.cs" />
+    <Compile Include="Version.cs" />
     <Page Include="JobEntry.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -116,7 +122,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="ModList.xaml">
+    <Page Include="ModListControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -125,8 +131,8 @@
     <Compile Include="ModInstallWindow.xaml.cs">
       <DependentUpon>ModInstallWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ModList.xaml.cs">
-      <DependentUpon>ModList.xaml</DependentUpon>
+    <Compile Include="ModListControl.xaml.cs">
+      <DependentUpon>ModListControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>

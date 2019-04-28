@@ -54,6 +54,9 @@ namespace GCManager
                 _instance.Save();
             }
 
+            if (!Directory.Exists(_instance.GetFullDownloadDirectory()))
+                Directory.CreateDirectory(_instance.GetFullDownloadDirectory());
+
             return _instance;
         }
 

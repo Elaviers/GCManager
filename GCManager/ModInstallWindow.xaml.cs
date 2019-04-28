@@ -4,6 +4,8 @@ namespace GCManager
 {
     public partial class ModInstallWindow : Window
     {
+        ModListOnline onlineModList = new ModListOnline();
+
         private string arg;
         public ModInstallWindow(string arg)
         {
@@ -27,10 +29,12 @@ namespace GCManager
                 string version = tokens[tokens.Length - 2];
 
                 MessageBox.Show(author + ", " + name + ", " + version);
-                
-                ModManager.QueryOnlineMods();
 
-                foreach (Mod mod in ModManager.onlineMods)
+                ModManager.onlineModList = onlineModList;
+
+                onlineModList.GetMods();
+
+                foreach (Mod mod in onlineModList.collection)
                 {
                     if (mod.name == name && mod.author == author)
                     {

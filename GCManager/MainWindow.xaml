@@ -14,7 +14,14 @@
                 <ColumnDefinition Width="380"/>
             </Grid.ColumnDefinitions>
 
-            <local:ModList x:Name="Mods"/>
+            <TabControl>
+                <TabItem Header="Online Mods">
+                    <local:ModListControl x:Name="OnlineMods"/>
+                </TabItem>
+                <TabItem Header="Downloaded Mods">
+                    <local:ModListControl x:Name="DownloadedMods"/>
+                </TabItem>
+            </TabControl>
 
             <GridSplitter HorizontalAlignment="Stretch" Margin="0" Grid.Column="1" Background="#FF1E7626"/>
 
@@ -31,7 +38,9 @@
 
                 <Canvas Background="Black" Grid.ColumnSpan="2"/>
                 <Image Source="{Binding imageLink, FallbackValue='commando.ico'}" Grid.Column="1" VerticalAlignment="Top" Height="120"/>
-                <TextBlock Text="{Binding name, FallbackValue='Mod Name'}" Margin="10,10,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.459,0.531" Height="28" FontSize="24" FontWeight="Bold" FontFamily="Lucida Console" TextDecorations="Underline" Foreground="#FF00B9FF"/>
+                <Viewbox Margin="10,10,0,0" Height="28" VerticalAlignment="Top" HorizontalAlignment="Left">
+                <TextBlock Text="{Binding name, FallbackValue='Scaling text is cool!'}" FontSize="24" FontWeight="Bold" FontFamily="Lucida Console" TextDecorations="Underline" Foreground="#FF00B9FF" HorizontalAlignment="Left"/>
+                </Viewbox>
                 <TextBlock Text="{Binding author, FallbackValue='Author'}" Margin="10,30,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Foreground="#FFD6D6D6" FontStyle="Italic" FontSize="16" Height="21"/>
                 <TextBlock Text="{Binding description, FallbackValue='description...'}" Margin="20,56,0,0" TextWrapping="Wrap" Foreground="White"/>
 
@@ -48,9 +57,10 @@
                         <RowDefinition/>
                         <RowDefinition/>
                     </Grid.RowDefinitions>
-                    <Button Content="Launch Risk of Rain 2" Grid.ColumnSpan="3" Grid.Row="2" Click="Launch_Click"/>
+                    <Button Content="Launch Risk of Rain 2" Grid.ColumnSpan="2" Grid.Row="2" Click="Launch_Click" Foreground="#FF006D8D" FontWeight="Bold" Grid.Column="1" Background="#FFC3FCFF"/>
                     <Button Content="Open download folder" Grid.Row="1" Grid.Column="1" Click="OpenDownloads_Click" Grid.ColumnSpan="2"/>
                     <Button Content="Update all mods" Grid.Row="1" Click="UpdateMods_Click"/>
+                    <Button Content="Uninstall and delete all mods" Grid.Row="2" Click="DeleteMods_Click"/>
                     <Button Content="Change Game Directory" Grid.Column="2" HorizontalAlignment="Right" Click="ChangeGameDir_Click"/>
 
                     <Viewbox Grid.ColumnSpan="2" Margin="5,0">
@@ -58,8 +68,6 @@
                     </Viewbox>
                 </Grid>
             </Grid>
-
-
         </Grid>
     </DockPanel>
 </Window>

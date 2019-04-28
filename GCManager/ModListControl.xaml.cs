@@ -6,23 +6,37 @@ using System.Windows.Data;
 
 namespace GCManager
 {
-    public partial class ModList : UserControl
+    public partial class ModListControl : UserControl
     {
+        private ModList _modList;
+        public ModList modList { get { return _modList; } }
+
         private string _filterText;
         public string filterText { get { return _filterText; } set { _filterText = value; _refreshCollectionView(); } }
 
         private CollectionViewSource _collectionViewSource = new CollectionViewSource();
-
         public System.ComponentModel.ICollectionView collectionView;
 
-        private object _cvLock = new object();
-
-        public ModList()
+        public ModListControl()
         {
             InitializeComponent();
             this.DataContext = this;
 
             _collectionViewSource.Filter += new FilterEventHandler(DataGrid_Filter);
+        }
+
+        public void SetModList(ModList ml)
+        {
+            _modList = ml;
+            _collectionViewSource.Source = _modList.collection;
+        }
+
+        private void UpdateSelected_Click(object sender, RoutedEventArgs e)
+        {
+            foreach (Mod mod in DG.SelectedItems)
+            {
+                ModManager.UpdateMod(mod);
+            }
         }
 
         private void InstallSelected_Click(object sender, RoutedEventArgs e)
@@ -42,36 +56,25 @@ namespace GCManager
             }
         }
 
-        public void GetRelevantMods()
+        public void RefreshList()
         {
-            if (FilterCB.SelectedIndex == 0)
-            {
-                ModManager.QueryOnlineMods();
-                _collectionViewSource.Source = ModManager.onlineMods;
-            }
-            else
-            {
-                ModManager.QueryDownloadedMods();
-                _collectionViewSource.Source = ModManager.downloadedMods;
-            }
+            _modList.GetMods();
 
            collectionView = _collectionViewSource.View;
             DG.DataContext = _collectionViewSource.View;
-
-            BindingOperations.EnableCollectionSynchronization(collectionView, _cvLock);
         }
 
         private void Refresh_Click(object sender, RoutedEventArgs e)
         {
             DG.DataContext = null;
-            GetRelevantMods();
+            RefreshList();
         }
 
         private void ModFilter_Changed(object sender, SelectionChangedEventArgs e)
         {
             if (DG == null) return;
 
-            GetRelevantMods();
+            _refreshCollectionView();
         }
 
         private void DG_SelectionChanged(object sender, SelectionChangedEventArgs e)

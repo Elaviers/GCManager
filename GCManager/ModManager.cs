@@ -1,12 +1,9 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.IO.Compression;
 using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 
 //Warning: HUGE MESS BELOW!
@@ -18,21 +15,13 @@ namespace GCManager
     {
         private static readonly int MAX_CONCURRENT_DOWNLOADS = 1;
 
+        public static ModList onlineModList = null;
+
         class DownloadInfo
         {
             public Mod mod;
             public string version;
         }
-
-        class Manifest
-        {
-            public string name, description, website_url, version_number;
-
-            public List<String> dependencies;
-        }
-
-        public static ObservableCollection<Mod> downloadedMods = new ObservableCollection<Mod>();
-        public static ObservableCollection<Mod> onlineMods = new ObservableCollection<Mod>();
 
         public static Mod selectedModInfo = new Mod();
 
@@ -45,17 +34,6 @@ namespace GCManager
 
         private static List<string> _priorityInstalls = new List<string>();
         private static Queue<Mod> _pendingInstalls = new Queue<Mod>();
-
-        public static Mod FindMod(ObservableCollection<Mod> list, string fullName)
-        {
-            foreach (Mod mod in list)
-            {
-                if (mod.fullName == fullName)
-                    return mod;
-            }
-
-            return null;
-        }
 
         private static EntryInfo GetEntryInfo(Mod mod)
         {
@@ -94,115 +72,9 @@ namespace GCManager
             return newInfo;
         }
 
-        public static void QueryDownloadedMods()
-        {
-            downloadedMods.Clear();
-
-            foreach (string dir in Directory.GetDirectories(ManagerInfo.Get().GetFullDownloadDirectory()))
-            {
-                string json = File.ReadAllText(Path.Combine(dir, "manifest.json"));
-
-                Manifest manifest = JsonConvert.DeserializeObject<Manifest>(json);
-
-                Mod mod = new Mod();
-                mod.name = manifest.name;
-                mod.fullName = new DirectoryInfo(dir).Name;
-                mod.author = mod.fullName.Substring(0, mod.fullName.LastIndexOf('-'));
-                mod.authorLink = new Uri("https://thunderstore.io/package/" + mod.author);
-                mod.description = manifest.description;
-                mod.version = manifest.version_number;
-
-                if (mod.dependencies != null)
-                    mod.dependencies = manifest.dependencies.ToArray();
-
-                if (manifest.website_url.Length > 0)
-                    mod.modLink = new Uri(manifest.website_url);
-
-                mod.isInstalled = mod.CheckIfInstalled();
-
-                downloadedMods.Add(mod);
-            }
-        }
-
-        public static void QueryOnlineMods()
-        {
-            onlineMods.Clear();
-
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-
-            WebRequest modsPlease = WebRequest.Create("https://thunderstore.io/api/v1/package/");
-
-            WebResponse response = modsPlease.GetResponse();
-
-            if (response.ContentLength > 0)
-            {
-                string data = new StreamReader(response.GetResponseStream()).ReadToEnd();
-
-                var def = new[]
-                {
-                    new {
-                        name = "",
-                        full_name = "",
-                        owner = "",
-                        package_url = "",
-                        is_pinned = false,
-                        versions = new[]
-                        {
-                            new {
-                                name = "",
-                                full_name = "",
-                                description = "",
-                                icon = "",
-                                version_number = "",
-                                dependencies = new List<String>(),
-                                download_url = "",
-                                downloads = 0,
-                                date_created = "",
-                                website_url = ""
-                            }
-                        }
-                    }
-                };
-
-                var entries = JsonConvert.DeserializeAnonymousType(data, def);
-                int FirstUnpinnedIndex = 0;
-
-                foreach (var entry in entries)
-                {
-                    Mod mod = new Mod();
-                    mod.name = entry.name;
-                    mod.fullName = entry.full_name;
-                    mod.author = entry.owner;
-                    mod.authorLink = new Uri("https://thunderstore.io/package/" + mod.author);
-                    mod.modLink = new Uri(entry.package_url);
-
-                    mod.version = entry.versions[0].version_number;
-                    mod.description = entry.versions[0].description;
-                    mod.dependencies = entry.versions[0].dependencies.ToArray();
-                    mod.imageLink = new Uri(entry.versions[0].icon);
-
-                    mod.isInstalled = mod.CheckIfInstalled();
-
-                    mod.downloadCount = 0;
-                    for (int i = 0; i < entry.versions.Length; i++)
-                        mod.downloadCount += entry.versions[i].downloads;
-
-                    if (entry.is_pinned)
-                    {
-                        mod.notes = "Pinned";
-                        onlineMods.Insert(FirstUnpinnedIndex++, mod);
-                    }
-                    else
-                        onlineMods.Add(mod);
-                }
-            }
-
-            response.Close();
-        }
-
         public static void ActivateMod(Mod mod, string version = null)
         {
-            string downloadDir = Path.Combine(ManagerInfo.Get().GetFullDownloadDirectory(), mod.fullName);
+            string downloadDir = mod.GetDownloadDirectory();
 
             if (!Directory.Exists(downloadDir))
             {
@@ -217,7 +89,7 @@ namespace GCManager
 
                 if (File.Exists(manifestPath))
                 {
-                    Manifest manifest = JsonConvert.DeserializeObject<Manifest>(File.ReadAllText(manifestPath));
+                    LocalManifest manifest = JsonConvert.DeserializeObject<LocalManifest>(File.ReadAllText(manifestPath));
 
                     if (version != manifest.version_number)
                     {
@@ -292,7 +164,7 @@ namespace GCManager
             {
                 ZipArchive zip = new ZipArchive(new MemoryStream(zipData));
 
-                string path = Path.Combine(ManagerInfo.Get().GetFullDownloadDirectory(), mod.fullName);
+                string path = mod.GetDownloadDirectory();
 
                 foreach (ZipArchiveEntry entry in zip.Entries)
                 {
@@ -346,52 +218,33 @@ namespace GCManager
                 string[] tokens = dependency.Split('-');
                 string dependencyFullName = tokens[0] + '-' + tokens[1];
 
-                Mod dependencyMod = FindMod(onlineMods, dependencyFullName);
-
-                _priorityInstalls.Add(dependencyFullName);
-
-                if (dependencyMod == null)
+                if (onlineModList != null)
                 {
-                    MessageBox.Show("Error: Somehow, the dependency \"" + dependency + "\" could not be found in the online mod list.\nHmm... maybe you could try refreshing the online mod list?", "Uh oh", MessageBoxButton.OK);
-                }
-                else if (!dependencyMod.CheckIfInstalled())
-                {
-                    MessageBoxResult result = MessageBox.Show(
-                        "This mod requires the dependency \"" + dependency + "\".\nDo you want to install this? (You probably should!)", 
-                        "You must install additional mods", MessageBoxButton.YesNo);
+                    Mod dependencyMod = onlineModList.Find(dependencyFullName);
 
-                    if (result == MessageBoxResult.Yes)
-                        ActivateMod(dependencyMod);
-                }
+                    _priorityInstalls.Add(dependencyFullName);
 
-                _priorityInstalls.Remove(dependencyFullName);
-            }
-
-            if (mod.fullName == "bbepis-BepInExPack") //Special case
-            {
-                Utility.CopyDirectory(Path.Combine(ManagerInfo.Get().GetFullDownloadDirectory(), mod.fullName, "BepInExPack"), ManagerInfo.Get().installDir);
-            }
-            else
-            {
-                List<string> dlls = Utility.FindAllFiles(Path.Combine(ManagerInfo.Get().GetFullDownloadDirectory(), mod.fullName), "*.dll");
-
-                if (dlls.Count > 0)
-                {
-                    string dir = Path.Combine(ManagerInfo.Get().installDir, "BepInEx", "plugins", mod.fullName);
-
-                    Directory.CreateDirectory(dir);
-
-                    foreach (string filepath in dlls)
+                    if (dependencyMod == null)
                     {
-                        string dest = Path.Combine(dir, Path.GetFileName(filepath));
-
-                        if (!File.Exists(dest))
-                            File.Copy(filepath, dest, true);
+                        MessageBox.Show("Error: Somehow, the dependency \"" + dependency + "\" could not be found in the online mod list.\nHmm... maybe you could try refreshing the online mod list?", "Uh oh", MessageBoxButton.OK);
                     }
+                    else if (!dependencyMod.CheckIfInstalled())
+                    {
+                        MessageBoxResult result = MessageBox.Show(
+                            "This mod requires the dependency \"" + dependency + "\".\nDo you want to install this? (You probably should!)",
+                            "You must install additional mods", MessageBoxButton.YesNo);
+
+                        if (result == MessageBoxResult.Yes)
+                            ActivateMod(dependencyMod);
+                    }
+
+                    _priorityInstalls.Remove(dependencyFullName);
                 }
+                else
+                    MessageBox.Show("The dependency mod list is not set", "How did this even hapen?!", MessageBoxButton.OK);
             }
 
-            mod.isInstalled = true;
+            mod.Install();
             GetEntryInfo(mod).status = EntryStatus.INSTALLED;
 
             if (_pendingInstalls.Count > 0)
@@ -402,106 +255,23 @@ namespace GCManager
 
         public static void UninstallMod(Mod mod)
         {
-            if (mod.fullName == "bbepis-BepInExPack") //Special case
-            {
-                MessageBoxResult result = MessageBox.Show("Uninstalling BepInExPack will also uninstall all of your mods!\nContinue?", "Wait a minute...", MessageBoxButton.YesNo);
-                if (result == MessageBoxResult.No)
-                {
-                    mod.isInstalled = true;
-                    return;
-                }
-
-                string installDir = ManagerInfo.Get().installDir;
-
-                try
-                {
-                    Directory.Delete(System.IO.Path.Combine(installDir, "BepInEx"), true);
-                    File.Delete(System.IO.Path.Combine(installDir, "winhttp.dll"));
-                    File.Delete(System.IO.Path.Combine(installDir, "doorstop_config.ini"));
-                }
-                catch (IOException) { }
-
-                Mod.CheckIfModsInstalled(onlineMods);
-                Mod.CheckIfModsInstalled(downloadedMods);
-            }
-            else
-            {
-                try
-                {
-                    Directory.Delete(System.IO.Path.Combine(ManagerInfo.Get().installDir, "BepInEx", "plugins", mod.fullName), true);
-                }
-                catch (DirectoryNotFoundException) { return; }
-            }
-
-            mod.isInstalled = false;
+            mod.Uninstall();
             GetEntryInfo(mod).status = EntryStatus.UNINSTALLED;
         }
 
-        class Version
+        public static void UpdateMod(Mod localMod)
         {
-            float major;
-            float minor;
-            float patch;
+            Mod onlineMod = onlineModList.Find(localMod.fullName);
 
-            public Version(String s)
+            if (onlineMod != null && new Version(localMod.version) < new Version(onlineMod.version))
             {
-                string[] tokens = s.Split('.');
-                if (tokens.Length >= 3)
-                {
-                    major = float.Parse(tokens[0]);
-                    minor = float.Parse(tokens[1]);
-                    patch = float.Parse(tokens[2]);
-                }
+                if (localMod.fullName != "bbepis-BepInExPack")
+                    UninstallMod(localMod);
+
+                Directory.Delete(localMod.GetDownloadDirectory(), true);
+
+                ActivateMod(onlineMod);
             }
-
-            public static bool operator <(Version a, Version b)
-            {
-                if (a.major < b.major)
-                    return true;
-
-                if (a.minor < b.minor)
-                    return true;
-
-                if (a.patch < b.patch)
-                    return true;
-
-                return false;
-            }
-            public static bool operator>(Version a, Version b)
-            {
-                if (a.major > b.major)
-                    return true;
-
-                if (a.major == b.major)
-                {
-                    if (a.minor > b.minor)
-                        return true;
-
-                    if (a.minor == b.minor && a.patch > b.patch)
-                        return true;
-                }
-
-                return false;
-            }
-        }
-
-        public static void UpdateMods()
-        {
-            foreach (Mod localMod in downloadedMods)
-            {
-                Mod onlineMod = FindMod(onlineMods, localMod.fullName);
-
-                if (onlineMod != null && new Version(localMod.version) < new Version(onlineMod.version))
-                {
-                    if (localMod.fullName != "bbepis-BepInExPack")
-                        UninstallMod(localMod);
-
-                    Directory.Delete(Path.Combine(ManagerInfo.Get().GetFullDownloadDirectory(), localMod.fullName), true);
-
-                    ActivateMod(onlineMod);
-                }
-            }
-
         }
     }
 }
