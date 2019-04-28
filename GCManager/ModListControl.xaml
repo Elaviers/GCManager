@@ -55,23 +55,23 @@
             </DataGrid.RowStyle>
 
             <DataGrid.Columns>
-                <DataGridTemplateColumn Header="Installed" CanUserReorder="False" CanUserResize="False" Width="55" IsReadOnly="True" SortMemberPath="ChkBx">
+                <DataGridTemplateColumn Header="Installed" CanUserReorder="False" CanUserResize="False" Width="55" IsReadOnly="True" SortMemberPath="isInstalled">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <CheckBox Name="ChkBx" IsChecked="{Binding isInstalled}" Click="CheckBox_Click" HorizontalAlignment="Center"/>
+                            <CheckBox IsChecked="{Binding isInstalled}" Click="CheckBox_Click" HorizontalAlignment="Center"/>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridHyperlinkColumn Binding="{Binding modLink}" ContentBinding="{Binding name}" Header="Name" Width="150" IsReadOnly="True" CellStyle="{StaticResource HyperlinkCellStyle}"/>
+                <DataGridHyperlinkColumn Binding="{Binding modLink}" ContentBinding="{Binding name}" Header="Name" Width="150" IsReadOnly="True" SortMemberPath="name" CellStyle="{StaticResource HyperlinkCellStyle}"/>
                 <DataGridTextColumn Binding="{Binding description}" Header="Description" Width="3*" IsReadOnly="True"/>
-                <DataGridHyperlinkColumn Binding="{Binding authorLink}" ContentBinding="{Binding author}" Header="Author" IsReadOnly="True" MinWidth="100" CellStyle="{StaticResource HyperlinkCellStyle}"/>
+                <DataGridHyperlinkColumn Binding="{Binding authorLink}" ContentBinding="{Binding author}" Header="Author" IsReadOnly="True" MinWidth="100" SortMemberPath="author" CellStyle="{StaticResource HyperlinkCellStyle}"/>
                 <DataGridTextColumn Binding="{Binding version}" Header="Version" IsReadOnly="True" CanUserResize="False" Width="60"/>
                 <DataGridTextColumn Binding="{Binding downloadCount}" Header="Downloads" Width="80"/>
                 <DataGridTextColumn Binding="{Binding notes}" Header="Notes" IsReadOnly="True" Width="50"/>
             </DataGrid.Columns>
         </DataGrid>
 
-        <Grid Grid.Row="2" Height="20">
+        <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
                 <ColumnDefinition/>

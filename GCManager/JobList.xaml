@@ -16,7 +16,7 @@
         <Label Foreground="White" Background="#FF3E3E3E" Content="Job List"/>
         <Button Content="Clear" Width="75" HorizontalAlignment="Right" Click="Clear_Click"/>
 
-        <ListView Name="LV" Grid.Row="1">
+        <ListView Name="LV" Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
             <ListView.Background>
                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                     <GradientStop Color="Black" Offset="0.751"/>

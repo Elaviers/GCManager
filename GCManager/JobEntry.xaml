@@ -18,7 +18,11 @@
         </Grid.ColumnDefinitions>
         <Image Source="{Binding imageLink}"/>
         <ProgressBar Grid.Column="1" Value="{Binding progress, FallbackValue='88'}"/>
-        <Label Content="{Binding fullName, FallbackValue=name}" Grid.Column="1" Margin="10,10,0,0" VerticalAlignment="Top" Height="26" FontWeight="Bold" FontSize="8"/>
+
+        <Viewbox Grid.Column="1" Margin="10,0" VerticalAlignment="Top" Height="26" HorizontalAlignment="Left">
+            <Label Content="{Binding fullName, FallbackValue='Name that is super long no really I am sure that you will find this name quite long and be impressed at the fact that it does not go off the edge'}" FontWeight="Bold" FontSize="26" VerticalContentAlignment="Center" ScrollViewer.VerticalScrollBarVisibility="Disabled"/>
+        </Viewbox>
+        
         <Label Content="{Binding status, FallbackValue=status, Converter={StaticResource StatusConverter}}" Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Bottom" Height="38" FontWeight="Bold" FontSize="16"/>
         <Label Content="{Binding version, FallbackValue=9.2.133}" Grid.Column="1" Margin="112,26,0,0" VerticalAlignment="Top" Height="38" FontWeight="Bold" FontSize="16" HorizontalAlignment="Right"/>
     </Grid>

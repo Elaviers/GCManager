@@ -28,8 +28,6 @@ namespace GCManager
                 string name = tokens[tokens.Length - 3];
                 string version = tokens[tokens.Length - 2];
 
-                MessageBox.Show(author + ", " + name + ", " + version);
-
                 ModManager.onlineModList = onlineModList;
 
                 onlineModList.GetMods();

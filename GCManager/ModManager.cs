@@ -35,6 +35,16 @@ namespace GCManager
         private static List<string> _priorityInstalls = new List<string>();
         private static Queue<Mod> _pendingInstalls = new Queue<Mod>();
 
+        public static void RefreshLists()
+        {
+            App app = (App)Application.Current;
+            if (app.window != null)
+            {
+                app.window.OnlineMods.modList.UpdateModInstalledStatus();
+                app.window.DownloadedMods.modList.UpdateModInstalledStatus();
+            }
+        }
+
         private static EntryInfo GetEntryInfo(Mod mod)
         {
             foreach (EntryInfo info in jobs)
@@ -251,6 +261,8 @@ namespace GCManager
             {
                 InstallMod(_pendingInstalls.Dequeue());
             }
+
+            RefreshLists();
         }
 
         public static void UninstallMod(Mod mod)
@@ -258,13 +270,7 @@ namespace GCManager
             mod.Uninstall();
             GetEntryInfo(mod).status = EntryStatus.UNINSTALLED;
 
-            //Refresh lists
-            App app = (App)Application.Current;
-            if (app.window != null)
-            {
-                app.window.OnlineMods.modList.UpdateModInstalledStatus();
-                app.window.DownloadedMods.modList.UpdateModInstalledStatus();
-            }
+            RefreshLists();
         }
 
         public static void UpdateMod(Mod localMod)
