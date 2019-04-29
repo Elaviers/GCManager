@@ -44,7 +44,7 @@ namespace GCManager
 
             foreach (string file in profiles)
             {
-                profileNameList.Add(new DirectoryInfo(file).Name);
+                profileNameList.Add(Path.GetFileNameWithoutExtension(file));
 
                 profileList.Add(JsonConvert.DeserializeObject<Profile>(File.ReadAllText(file)));
             }
@@ -144,8 +144,10 @@ namespace GCManager
                 NoProfileError();
             else
             {
+                _currentProfile.entries.Clear();
                 AddCurrentInstalledModsToProfile(_currentProfile);
                 _currentProfile.Save();
+                RecreateLists();
             }
         }
 
