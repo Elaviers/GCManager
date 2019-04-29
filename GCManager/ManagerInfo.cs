@@ -10,7 +10,8 @@ namespace GCManager
         private static ManagerInfo _instance = null;
 
         public string installDir = null;
-        public string DownloadDirectory = null;
+        public string DownloadDirectory = "Downloads";
+        public string ProfileDirectory = "Profiles";
 
         public static string GetConfigFileName()
         {
@@ -20,6 +21,11 @@ namespace GCManager
         public string GetFullDownloadDirectory()
         {
             return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, this.DownloadDirectory);
+        }
+
+        public string GetFullProfileDirectory()
+        {
+            return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, this.ProfileDirectory);
         }
 
         public static ManagerInfo Get()
@@ -48,14 +54,14 @@ namespace GCManager
                     }
                 }
 
-                if (_instance.DownloadDirectory == null)
-                    _instance.DownloadDirectory = "Downloads";
-
                 _instance.Save();
             }
 
             if (!Directory.Exists(_instance.GetFullDownloadDirectory()))
                 Directory.CreateDirectory(_instance.GetFullDownloadDirectory());
+
+            if (!Directory.Exists(_instance.GetFullProfileDirectory()))
+                Directory.CreateDirectory(_instance.GetFullProfileDirectory());
 
             return _instance;
         }

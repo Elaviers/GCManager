@@ -17,6 +17,8 @@ namespace GCManager
 
         public static ModList onlineModList = null;
 
+        public static bool silent = false;
+
         class DownloadInfo
         {
             public Mod mod;
@@ -35,7 +37,7 @@ namespace GCManager
         private static List<string> _priorityInstalls = new List<string>();
         private static Queue<Mod> _pendingInstalls = new Queue<Mod>();
 
-        public static void RefreshLists()
+        public static void UpdateInstalledStatuses()
         {
             App app = (App)Application.Current;
             if (app.window != null)
@@ -240,12 +242,15 @@ namespace GCManager
                     }
                     else if (!dependencyMod.CheckIfInstalled())
                     {
-                        MessageBoxResult result = MessageBox.Show(
-                            "This mod requires the dependency \"" + dependency + "\".\nDo you want to install this? (You probably should!)",
-                            "You must install additional mods", MessageBoxButton.YesNo);
+                        if (!silent)
+                        {
+                            MessageBoxResult result = MessageBox.Show(
+                                "This mod requires the dependency \"" + dependency + "\".\nDo you want to install this? (You probably should!)",
+                                "You must install additional mods", MessageBoxButton.YesNo);
 
-                        if (result == MessageBoxResult.Yes)
-                            ActivateMod(dependencyMod);
+                            if (result == MessageBoxResult.Yes || silent)
+                                ActivateMod(dependencyMod);
+                        }
                     }
 
                     _priorityInstalls.Remove(dependencyFullName);
@@ -262,7 +267,7 @@ namespace GCManager
                 InstallMod(_pendingInstalls.Dequeue());
             }
 
-            RefreshLists();
+            UpdateInstalledStatuses();
         }
 
         public static void UninstallMod(Mod mod)
@@ -270,7 +275,7 @@ namespace GCManager
             mod.Uninstall();
             GetEntryInfo(mod).status = EntryStatus.UNINSTALLED;
 
-            RefreshLists();
+            UpdateInstalledStatuses();
         }
 
         public static void UpdateMod(Mod localMod)

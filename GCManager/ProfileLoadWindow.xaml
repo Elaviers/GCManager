@@ -1,0 +1,17 @@
+﻿<Window x:Class="GCManager.ProfileLoadWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:GCManager"
+        mc:Ignorable="d"
+        Title="Load Profile" Height="130" Width="300" ResizeMode="NoResize">
+    <Grid>
+        <Button Content="Load" HorizontalAlignment="Right" Margin="0,0,10,10" VerticalAlignment="Bottom" Width="75" IsDefault="True" Click="Load_Click"/>
+        <Button Content="Cancel" HorizontalAlignment="Left" Margin="10,0,0,10" VerticalAlignment="Bottom" Width="75" IsCancel="True" Click="Cancel_Click"/>
+        <CheckBox IsChecked="{Binding installOverExisting}" Content="Do not uninstall existing mods before load" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+        <CheckBox IsChecked="{Binding installProfileVersions}" Content="Install versions specified in profile" HorizontalAlignment="Left" Margin="10,30,0,0" VerticalAlignment="Top"/>
+        <TextBlock HorizontalAlignment="Left" Margin="38,45,0,0" TextWrapping="Wrap" Text="(Otherwise, latest versions will be used)" VerticalAlignment="Top" FontSize="11" Foreground="#FF979797"/>
+
+    </Grid>
+</Window>

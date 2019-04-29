@@ -9,6 +9,7 @@ namespace GCManager
         ModListOnline onlineModList = new ModListOnline();
         ModListDownloaded downloadedModList = new ModListDownloaded();
 
+        ProfileManager profileManager;
         public MainWindow()
         {
             InitializeComponent();
@@ -70,6 +71,14 @@ namespace GCManager
                 inst.installDir = result;
                 inst.Save();
             }
+        }
+
+        private void OpenProfileManager_Click(object sender, RoutedEventArgs e)
+        {
+            if (profileManager == null || profileManager.isClosed)
+                profileManager = new ProfileManager();
+
+            profileManager.Show();
         }
     }
 }

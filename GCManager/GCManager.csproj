@@ -81,6 +81,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Profile.cs" />
     <Compile Include="JobEntry.xaml.cs">
       <DependentUpon>JobEntry.xaml</DependentUpon>
     </Compile>
@@ -96,6 +97,15 @@
     <Compile Include="ModListOnline.cs" />
     <Compile Include="ModManager.cs" />
     <Compile Include="OnlineManifest.cs" />
+    <Compile Include="ProfileLoadWindow.xaml.cs">
+      <DependentUpon>ProfileLoadWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ProfileManager.xaml.cs">
+      <DependentUpon>ProfileManager.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ProfileCreateWindow.xaml.cs">
+      <DependentUpon>ProfileCreateWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Utility.cs" />
     <Compile Include="Version.cs" />
     <Page Include="JobEntry.xaml">
@@ -123,6 +133,18 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="ModListControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ProfileLoadWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ProfileManager.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ProfileCreateWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

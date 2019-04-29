@@ -1,0 +1,42 @@
+﻿<Window x:Class="GCManager.ProfileManager"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:GCManager"
+        mc:Ignorable="d"
+        Title="Profile Manager" Height="450" Width="450.408" Background="#FF4D4D4D" Foreground="White" Closed="Window_Closed">
+    <Grid Margin="0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="35*"/>
+            <RowDefinition Height="384*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <ListBox Name="DataLB"  ItemsSource="{Binding modNameList, FallbackValue='ABCDEF'}" Margin="0" Grid.Row="1" Background="#FF747474" Foreground="White"/>
+        <TextBlock HorizontalAlignment="Right" Margin="0,0,10,0" TextWrapping="Wrap" Text="Profile:" VerticalAlignment="Center"/>
+        <ComboBox Name="ProfileCB" ItemsSource="{Binding profileNameList}" Margin="0" Grid.Column="1" SelectionChanged="ProfileList_SelectionChanged"/>
+
+        <Grid Grid.Row="1" Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+
+            <Button Content="Create new profile" Margin="0" Grid.Row="0" Click="CreateProfile_Click"/>
+            <Button Content="Delete current profile" Margin="0" Grid.Row="1" Click="DeleteProfile_Click"/>
+            <Button Content="Import profile from clipboard" Margin="0" Grid.Row="2" Click="CreateFromClipboard_Click"/>
+            <Button Content="Export profile to clipboard" Margin="0" Grid.Row="3" Click="SaveToClipboard_click"/>
+            <Button Content="Save installed mods to current profile" Margin="0" Grid.Row="4" Click="SaveProfile_Click"/>
+            <Button Content="Install mods from current profile" Margin="0,-2,0,0" Grid.Row="5" Click="LoadProfile_Click"/>
+
+        </Grid>
+
+    </Grid>
+</Window>

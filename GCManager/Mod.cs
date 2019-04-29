@@ -47,7 +47,12 @@ namespace GCManager
 
         public string GetInstallDirectory()
         {
-            return Path.Combine(ManagerInfo.Get().installDir, "BepInEx", "plugins", this.fullName);
+            return GetInstallDirectory(this.fullName);
+        }
+
+        public static string GetInstallDirectory(string fullName)
+        {
+            return Path.Combine(ManagerInfo.Get().installDir, "BepInEx", "plugins", fullName);
         }
 
         public void Install()
@@ -81,13 +86,23 @@ namespace GCManager
 
         public void Uninstall()
         {
+            Uninstall(this.fullName);
+
+            this.isInstalled = false;
+        }
+
+        public static void Uninstall(string name, bool silent = false)
+        {
             try
             {
-                if (this.fullName == "bbepis-BepInExPack")
+                if (name == "bbepis-BepInExPack")
                 {
-                    MessageBoxResult result = MessageBox.Show("Uninstalling BepInEx will also uninstall all of your mods!\nYou sure about this?", "Warning", MessageBoxButton.YesNo);
-                    if (result != MessageBoxResult.Yes)
-                        return;
+                    if (!silent)
+                    {
+                        MessageBoxResult result = MessageBox.Show("Uninstalling BepInEx will also uninstall all of your mods!\nYou sure about this?", "Warning", MessageBoxButton.YesNo);
+                        if (result != MessageBoxResult.Yes)
+                            return;
+                    }
 
                     string installDir = ManagerInfo.Get().installDir;
 
@@ -97,12 +112,10 @@ namespace GCManager
                 }
                 else
                 {
-                    Directory.Delete(GetInstallDirectory(), true);
+                    Directory.Delete(GetInstallDirectory(name), true);
                 }
             }
             catch (IOException) { }
-
-            this.isInstalled = false;
         }
 
         public bool CheckIfInstalled()
