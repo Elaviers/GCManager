@@ -106,9 +106,14 @@ namespace GCManager
 
                     string installDir = ManagerInfo.Get().installDir;
 
-                    Directory.Delete(System.IO.Path.Combine(installDir, "BepInEx"), true);
-                    File.Delete(System.IO.Path.Combine(installDir, "winhttp.dll"));
-                    File.Delete(System.IO.Path.Combine(installDir, "doorstop_config.ini"));
+                    foreach (string dir in Directory.GetDirectories(Path.Combine(installDir, "BepInEx")))
+                    {
+                        if (new DirectoryInfo(dir).Name != "config")
+                            Directory.Delete(dir, true);
+                    }
+
+                    File.Delete(Path.Combine(installDir, "winhttp.dll"));
+                    File.Delete(Path.Combine(installDir, "doorstop_config.ini"));
                 }
                 else
                 {
@@ -121,7 +126,7 @@ namespace GCManager
         public bool CheckIfInstalled()
         {
             return this.fullName == "bbepis-BepInExPack" ?
-                Directory.Exists(Path.Combine(ManagerInfo.Get().installDir, "BepInEx")) :
+                Directory.Exists(Path.Combine(ManagerInfo.Get().installDir, "BepInEx", "core")) :
                 Directory.Exists(GetInstallDirectory());
         }
 
