@@ -12,7 +12,7 @@ namespace GCManager
 {
     public partial class App : Application
     {
-        public static readonly string VERSION = "1.3.1";
+        public static readonly string VERSION = "1.3.2";
 
         public MainWindow window = null;
 
