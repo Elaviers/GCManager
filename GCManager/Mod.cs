@@ -129,8 +129,11 @@ namespace GCManager
                 }
                 else
                 {
-                    Directory.Delete(GetMonoModPath(name), true);
-                    Directory.Delete(GetPluginPath(name), true);
+                    if (Directory.Exists(GetMonoModPath(name)))
+                        Directory.Delete(GetMonoModPath(name), true);
+
+                    if (Directory.Exists(GetPluginPath(name)))
+                        Directory.Delete(GetPluginPath(name), true);
                 }
             }
             catch (IOException) { }
