@@ -58,6 +58,7 @@ namespace GCManager
                     Directory.Delete(mod.GetDownloadDirectory(), true);
                 }
                 catch (DirectoryNotFoundException) { }
+                catch (IOException ex) { MessageBox.Show("An IO Exception was thrown\n" + ex.Message); }
             }
         }
 

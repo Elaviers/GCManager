@@ -22,6 +22,19 @@ namespace GCManager
             return result;
         }
 
+        public static List<string> FindAllDirectories(string path)
+        {
+            List<string> result = new List<string>();
+
+            foreach (string dir in Directory.GetDirectories(path))
+            {
+                result.AddRange(FindAllDirectories(dir));
+                result.Add(dir);
+            }
+
+            return result;
+        }
+
         public static void CopyDirectory(string sourcePath, string destPath)
         {
             DirectoryInfo src = new DirectoryInfo(sourcePath);

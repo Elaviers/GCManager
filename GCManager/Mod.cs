@@ -45,14 +45,14 @@ namespace GCManager
             return Path.Combine(ManagerInfo.Get().GetFullDownloadDirectory(), this.fullName);
         }
 
-        public string GetInstallDirectory()
-        {
-            return GetInstallDirectory(this.fullName);
-        }
-
-        public static string GetInstallDirectory(string fullName)
+        public static string GetPluginPath(string fullName)
         {
             return Path.Combine(ManagerInfo.Get().installDir, "BepInEx", "plugins", fullName);
+        }
+
+        public static string GetMonoModPath(string fullName)
+        {
+            return Path.Combine(ManagerInfo.Get().installDir, "BepInEx", "monomod", fullName);
         }
 
         public void Install()
@@ -63,20 +63,32 @@ namespace GCManager
             }
             else
             {
-                List<string> dlls = Utility.FindAllFiles(GetDownloadDirectory(), "*.dll");
+                List<string> dirs = Utility.FindAllDirectories(GetDownloadDirectory());
+                dirs.Add(GetDownloadDirectory());
 
-                if (dlls.Count > 0)
+                foreach (string dir in dirs)
                 {
-                    string dir = GetInstallDirectory();
+                    string destDir;
 
-                    Directory.CreateDirectory(dir);
+                    if (new DirectoryInfo(dir).Name.ToLower() == "monomod")
+                        destDir = GetMonoModPath("");
+                    else
+                        destDir = GetPluginPath("");
 
-                    foreach (string filepath in dlls)
+                    string[] dlls = Directory.GetFiles(dir, "*.dll");
+
+                    if (dlls.Length > 0)
                     {
-                        string dest = Path.Combine(dir, Path.GetFileName(filepath));
+                        destDir = Path.Combine(destDir, this.fullName);
+                        Directory.CreateDirectory(destDir);
 
-                        if (!File.Exists(dest))
-                            File.Copy(filepath, dest, true);
+                        foreach (string filepath in dlls)
+                        {
+                            string dest = Path.Combine(destDir, Path.GetFileName(filepath));
+
+                            if (!File.Exists(dest))
+                                File.Copy(filepath, dest, true);
+                        }
                     }
                 }
             }
@@ -117,7 +129,8 @@ namespace GCManager
                 }
                 else
                 {
-                    Directory.Delete(GetInstallDirectory(name), true);
+                    Directory.Delete(GetMonoModPath(name), true);
+                    Directory.Delete(GetPluginPath(name), true);
                 }
             }
             catch (IOException) { }
@@ -127,7 +140,7 @@ namespace GCManager
         {
             return this.fullName == "bbepis-BepInExPack" ?
                 Directory.Exists(Path.Combine(ManagerInfo.Get().installDir, "BepInEx", "core")) :
-                Directory.Exists(GetInstallDirectory());
+                Directory.Exists(GetMonoModPath(this.fullName)) || Directory.Exists(GetPluginPath(this.fullName)); 
         }
 
         public Mod()
