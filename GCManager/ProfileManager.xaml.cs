@@ -46,7 +46,7 @@ namespace GCManager
             {
                 profileNameList.Add(Path.GetFileNameWithoutExtension(file));
 
-                profileList.Add(JsonConvert.DeserializeObject<Profile>(File.ReadAllText(file)));
+                profileList.Add(Profile.Load(File.ReadAllText(file), Path.GetFileNameWithoutExtension(file)));
             }
         }
 
@@ -99,7 +99,7 @@ namespace GCManager
 
                 try
                 {
-                    profile = JsonConvert.DeserializeObject<Profile>(Clipboard.GetText());
+                    profile = Profile.Load(Clipboard.GetText());
                 }
                 catch (JsonReaderException) {}
 
@@ -194,7 +194,7 @@ namespace GCManager
             if (_currentProfile == null)
                 NoProfileError();
             else
-                Clipboard.SetText(JsonConvert.SerializeObject(_currentProfile));
+                Clipboard.SetText(_currentProfile.GetJSON());
         }
 
         private void Window_Closed(object sender, System.EventArgs e)

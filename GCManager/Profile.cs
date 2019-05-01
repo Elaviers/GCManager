@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -17,8 +18,12 @@ namespace GCManager
             public string version;
 
             public ProfileEntry()
-            {
+            { }
 
+            public ProfileEntry(string fullName, string version)
+            {
+                this.fullName = fullName;
+                this.version = version;
             }
 
             public ProfileEntry(Mod mod)
@@ -52,9 +57,64 @@ namespace GCManager
             entries.Add(new ProfileEntry(localMod));
         }
 
+        public static Profile Load(string json, string fileName = null)
+        {
+            var content = JToken.Parse(json);
+
+            if (content != null)
+            {
+                if (content is JArray)
+                {
+                    var profile = new Profile();
+
+                    if (fileName == null)
+                    {
+
+                        ProfileCreateWindow dialog = new ProfileCreateWindow();
+                        if (dialog.ShowDialog() == true)
+                            profile.name = dialog.profileName;
+                        else
+                            return null;
+                    }
+
+                    JArray array = content as JArray;
+
+                    foreach (string package in array)
+                    {
+                        int versionHyphenIndex = package.LastIndexOf('-');
+
+                        string fullName = package.Substring(0, versionHyphenIndex);
+                        string version = package.Substring(versionHyphenIndex + 1);
+
+                        profile.entries.Add(new ProfileEntry(fullName, version));
+                    }
+
+                    return profile;
+                }
+                else if (content is JObject)
+                {
+                    return content.ToObject<Profile>();
+                }
+            }
+
+            return null;
+        }
+
+        public string GetJSON()
+        {
+            List<string> packages = new List<string>();
+
+            foreach (ProfileEntry entry in entries)
+            {
+                packages.Add(string.Format("{0}-{1}", entry.fullName, entry.version));
+            }
+
+            return JsonConvert.SerializeObject(packages);
+        }
+
         public void Save()
         {
-            File.WriteAllText(Path.Combine(ManagerInfo.Get().GetFullProfileDirectory(), (name + ".json")), JsonConvert.SerializeObject(this));
+            File.WriteAllText(Path.Combine(ManagerInfo.Get().GetFullProfileDirectory(), (name + ".json")), GetJSON());
         }
     }
 }
