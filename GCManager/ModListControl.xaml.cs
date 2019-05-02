@@ -35,7 +35,7 @@ namespace GCManager
         {
             foreach (Mod mod in DG.SelectedItems)
             {
-                ModManager.UpdateMod(mod);
+                ModManager.UpdateMod(ModManager.downloadedModList.Find(mod.fullName));
             }
         }
 
@@ -49,7 +49,6 @@ namespace GCManager
 
         private void UninstallSelected_Click(object sender, RoutedEventArgs e)
         {
-           
             foreach (Mod mod in DG.SelectedItems)
             {
                 ModManager.UninstallMod(mod);

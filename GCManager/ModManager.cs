@@ -16,6 +16,7 @@ namespace GCManager
         private static readonly int MAX_CONCURRENT_DOWNLOADS = 1;
 
         public static ModList onlineModList = null;
+        public static ModList downloadedModList = null;
 
         public static bool silent = false;
 
@@ -78,8 +79,11 @@ namespace GCManager
             newInfo.imageLink = mod.imageLink;
             newInfo.progress = 100;
 
-            jobs.Insert(0, newInfo);
-            ((App)Application.Current).JobListItems.Insert(0, new JobEntry(newInfo));
+            if (((App)Application.Current).JobListItems != null) {
+                jobs.Insert(0, newInfo);
+
+                ((App)Application.Current).JobListItems.Insert(0, new JobEntry(newInfo));
+            }
 
             return newInfo;
         }
@@ -90,7 +94,7 @@ namespace GCManager
 
             if (!Directory.Exists(downloadDir))
             {
-                QueueModDownload(mod, version ?? mod.version);
+                EnQueueModDownload(mod, version ?? mod.version);
                 return;
             }
 
@@ -106,7 +110,7 @@ namespace GCManager
                     if (version != manifest.version_number)
                     {
                         Directory.Delete(downloadDir, true);
-                        QueueModDownload(mod, version);
+                        EnQueueModDownload(mod, version);
                     }
                     else
                     {
@@ -119,13 +123,14 @@ namespace GCManager
                     MessageBox.Show(String.Format("\"{0}\" has a directory, but doesn't have a manifest!\nWhat's the deal with that?", mod.fullName), "Oh No!", MessageBoxButton.OK);
             }
 
+            mod.isInstalled = true; //Hacky way of flagging to install after download/extract
             InstallMod(mod, mod.version);
         }
 
-        public static void QueueModDownload(Mod mod, string version)
+        public static void EnQueueModDownload(Mod mod, string version)
         {
             if (_downloadsInProgress < MAX_CONCURRENT_DOWNLOADS)
-                _DownloadModAndInstall(mod, version);
+                _DownloadMod(mod, version);
             else
             {
                 DownloadInfo info = new DownloadInfo();
@@ -136,17 +141,18 @@ namespace GCManager
             }
         }
 
-        public static void _DownloadModAndInstall(Mod mod, string version)
+        private static void _DownloadMod(Mod mod, string version)
         {
             EntryInfo info = GetEntryInfo(mod);
             info.version = version;
             info.progress = 0;
             info.status = EntryStatus.DOWNLOADING;
+            info.version = version;
 
             WebClient client = new WebClient();
 
             client.DownloadProgressChanged += DownloadProgressUpdate;
-            client.DownloadDataCompleted += DownloadComplete;
+            client.DownloadDataCompleted += _DownloadComplete;
 
             string modVersion = version ?? mod.version;
 
@@ -155,20 +161,20 @@ namespace GCManager
             client.DownloadDataAsync(new Uri(String.Format("https://thunderstore.io/package/download/{0}/{1}/{2}/", mod.author, mod.name, version)), mod);
         }
 
-        private static void DownloadComplete(object sender, DownloadDataCompletedEventArgs args)
+        private static void _DownloadComplete(object sender, DownloadDataCompletedEventArgs args)
         {
             _downloadsInProgress--;
             
             if (_downloadQueue.Count > 0)
             {
                 DownloadInfo info = _downloadQueue.Dequeue();
-                _DownloadModAndInstall(info.mod, info.version);
+                _DownloadMod(info.mod, info.version);
             }
 
-            UnzipModAndInstall((Mod)args.UserState, args.Result);
+            UnzipMod((Mod)args.UserState, args.Result);
         }
 
-        public static void UnzipModAndInstall(Mod mod, byte[] zipData)
+        public static void UnzipMod(Mod mod, byte[] zipData)
         {
             GetEntryInfo(mod).status = EntryStatus.EXTRACTING;
 
@@ -198,7 +204,13 @@ namespace GCManager
 
                 zip.Dispose();
 
-                InstallMod(mod);
+                if (mod.isInstalled)
+                    InstallMod(mod);
+                else
+                {
+                    mod.isInstalled = mod.CheckIfInstalled();
+                    GetEntryInfo(mod).status = EntryStatus.EXTRACTED;
+                }
             }
         }
 

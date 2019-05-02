@@ -24,6 +24,7 @@ namespace GCManager
             InstallDirText.Text = ManagerInfo.Get().installDir;
 
             ModManager.onlineModList = onlineModList;
+            ModManager.downloadedModList = downloadedModList;
 
             OnlineMods.SetModList(onlineModList);
             OnlineMods.RefreshList();

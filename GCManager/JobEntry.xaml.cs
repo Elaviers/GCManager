@@ -10,6 +10,7 @@ namespace GCManager
     {
         DOWNLOADING,
         EXTRACTING,
+        EXTRACTED,
         INSTALLING,
         INSTALLED,
         UNINSTALLED
@@ -36,6 +37,9 @@ namespace GCManager
 
                     case EntryStatus.EXTRACTING:
                         return "Extracting...";
+
+                    case EntryStatus.EXTRACTED:
+                        return "Extracted";
 
                     case EntryStatus.INSTALLING:
                         return "Installing...";

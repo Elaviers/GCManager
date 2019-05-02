@@ -143,7 +143,7 @@ namespace GCManager
         {
             return this.fullName == "bbepis-BepInExPack" ?
                 Directory.Exists(Path.Combine(ManagerInfo.Get().installDir, "BepInEx", "core")) :
-                Directory.Exists(GetMonoModPath(this.fullName)) || Directory.Exists(GetPluginPath(this.fullName)); 
+                (Directory.Exists(GetMonoModPath(this.fullName)) || Directory.Exists(GetPluginPath(this.fullName))); 
         }
 
         public Mod()
