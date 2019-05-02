@@ -1,11 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace GCManager
@@ -48,7 +44,7 @@ namespace GCManager
                     ModManager.ActivateMod(mod, installProfileVersions ? entry.version : null);
                 }
                 else
-                    MessageBox.Show("Could not find mod \"" + entry.fullName + "\"!", "Profile Load Error", MessageBoxButton.OK);
+                    MessageBox.Show($"Could not find mod \"{entry.fullName}\"!", "Profile Load Error", MessageBoxButton.OK);
             }
         }
 
@@ -106,7 +102,7 @@ namespace GCManager
 
             foreach (ProfileEntry entry in entries)
             {
-                packages.Add(string.Format("{0}-{1}", entry.fullName, entry.version));
+                packages.Add($"{entry.fullName}-{entry.version}");
             }
 
             return JsonConvert.SerializeObject(packages);

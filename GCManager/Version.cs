@@ -10,7 +10,7 @@ namespace GCManager
     {
         public float major, minor, patch;
 
-        public Version(String s)
+        public Version(string s)
         {
             string[] tokens = s.Split('.');
             if (tokens.Length >= 3)

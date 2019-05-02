@@ -6,9 +6,6 @@ using System.IO.Compression;
 using System.Net;
 using System.Windows;
 
-//Warning: HUGE MESS BELOW!
-//Scroll down at your own risk. I am not liable for any brain damage caused due to the reading of this file's code.
-
 namespace GCManager
 {
     class ModManager
@@ -40,12 +37,8 @@ namespace GCManager
 
         public static void UpdateInstalledStatuses()
         {
-            App app = (App)Application.Current;
-            if (app.window != null)
-            {
-                app.window.OnlineMods.modList.UpdateModInstalledStatus();
-                app.window.DownloadedMods.modList.UpdateModInstalledStatus();
-            }
+            onlineModList?.UpdateModInstalledStatus();
+            downloadedModList?.UpdateModInstalledStatus();
         }
 
         private static EntryInfo GetEntryInfo(Mod mod)
@@ -120,7 +113,7 @@ namespace GCManager
                     return;
                 }
                 else
-                    MessageBox.Show(String.Format("\"{0}\" has a directory, but doesn't have a manifest!\nWhat's the deal with that?", mod.fullName), "Oh No!", MessageBoxButton.OK);
+                    MessageBox.Show($"\"{mod.fullName}\" has a directory, but doesn't have a manifest!\nWhat's the deal with that?", "Oh No!", MessageBoxButton.OK);
             }
 
             mod.isInstalled = true; //Hacky way of flagging to install after download/extract
@@ -158,7 +151,7 @@ namespace GCManager
 
             _downloadsInProgress++;
 
-            client.DownloadDataAsync(new Uri(String.Format("https://thunderstore.io/package/download/{0}/{1}/{2}/", mod.author, mod.name, version)), mod);
+            client.DownloadDataAsync(new Uri($"https://thunderstore.io/package/download/{mod.author}/{mod.name}/{mod.version}/"), mod);
         }
 
         private static void _DownloadComplete(object sender, DownloadDataCompletedEventArgs args)
@@ -250,14 +243,14 @@ namespace GCManager
 
                     if (dependencyMod == null)
                     {
-                        MessageBox.Show("Error: Somehow, the dependency \"" + dependency + "\" could not be found in the online mod list.\nHmm... maybe you could try refreshing the online mod list?", "Uh oh", MessageBoxButton.OK);
+                        MessageBox.Show($"Error: Somehow, the dependency \"{dependency}\" could not be found in the online mod list.\nHmm... maybe you could try refreshing the online mod list?", "Uh oh", MessageBoxButton.OK);
                     }
                     else if (!dependencyMod.CheckIfInstalled())
                     {
                         if (!silent)
                         {
                             MessageBoxResult result = MessageBox.Show(
-                                "This mod requires the dependency \"" + dependency + "\".\nDo you want to install this? (You probably should!)",
+                                $"This mod requires the dependency \"{dependency}\".\nDo you want to install this? (You probably should!)",
                                 "You must install additional mods", MessageBoxButton.YesNo);
 
                             if (result == MessageBoxResult.Yes || silent)

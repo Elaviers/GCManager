@@ -52,7 +52,7 @@ namespace GCManager
 
         private void AddCurrentInstalledModsToProfile(Profile profile)
         {
-            foreach (Mod mod in ((App)Application.Current).window.OnlineMods.modList.collection)
+            foreach (Mod mod in ModManager.onlineModList.collection)
             {
                 if (mod.isInstalled)
                 {
@@ -133,7 +133,7 @@ namespace GCManager
                 ModManager.UpdateInstalledStatuses();
 
                 ModManager.silent = true;
-                _currentProfile.Install(((App)Application.Current).window.OnlineMods.modList, dialog.installProfileVersions);
+                _currentProfile.Install(ModManager.onlineModList, dialog.installProfileVersions);
                 ModManager.silent = false;
             }
         }
@@ -179,13 +179,13 @@ namespace GCManager
 
                     foreach (var entry in profile.entries)
                     {
-                        modNameList.Add(entry.fullName + " Version " + entry.version);
+                        modNameList.Add($"{entry.fullName} Version {entry.version}");
                     }
 
                     _currentProfile = profile;
                 }
                 else
-                    MessageBox.Show("Error: Could not find profile " + ProfileCB.Name + " in profile list", "WTF?", MessageBoxButton.OK);
+                    MessageBox.Show($"Error: Could not find profile {ProfileCB.Name} in profile list", "WTF?", MessageBoxButton.OK);
             }
         }
 

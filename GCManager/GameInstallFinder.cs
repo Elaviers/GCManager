@@ -39,8 +39,6 @@ namespace GCManager
         }
         public static string FindGameInstallDirectory()
         {
-            //Find Game Install
-
             string steamDir = (string)Registry.GetValue("HKEY_LOCAL_MACHINE\\SOFTWARE\\Valve\\Steam", "InstallPath", null);
 
             if (steamDir != null)

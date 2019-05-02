@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.ComponentModel;
-using System.Collections.ObjectModel;
 using System.Windows;
 
 namespace GCManager
@@ -13,8 +12,7 @@ namespace GCManager
 
         private void NotifyPropertyChanged(string name)
         {
-            if (PropertyChanged != null)
-                PropertyChanged(this, new PropertyChangedEventArgs(name));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
         private string _name, _author, _description;
@@ -63,7 +61,7 @@ namespace GCManager
             }
             else
             {
-                List<string> dirs = Utility.FindAllDirectories(GetDownloadDirectory());
+                List<string> dirs = new List<string>(Directory.GetDirectories(GetDownloadDirectory(), "*", SearchOption.AllDirectories));
                 dirs.Add(GetDownloadDirectory());
 
                 foreach (string dir in dirs)
@@ -192,10 +190,7 @@ namespace GCManager
             this.authorLink = new Uri("https://thunderstore.io/package/" + this.author);
             this.imageLink = new Uri(Path.Combine(downloadDir, "icon.png"));
 
-            if (mf.dependencies != null)
-                this.dependencies = mf.dependencies.ToArray();
-            else
-                this.dependencies = null;
+            this.dependencies = mf.dependencies;
 
             this.isInstalled = CheckIfInstalled();
         }

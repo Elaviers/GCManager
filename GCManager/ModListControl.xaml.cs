@@ -1,6 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using System.Threading;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 
@@ -8,8 +6,7 @@ namespace GCManager
 {
     public partial class ModListControl : UserControl
     {
-        private ModList _modList;
-        public ModList modList { get { return _modList; } }
+        public ModList modList { get; private set; }
 
         private string _filterText;
         public string filterText { get { return _filterText; } set { _filterText = value; _refreshCollectionView(); } }
@@ -27,8 +24,8 @@ namespace GCManager
 
         public void SetModList(ModList ml)
         {
-            _modList = ml;
-            _collectionViewSource.Source = _modList.collection;
+            modList = ml;
+            _collectionViewSource.Source = modList.collection;
         }
 
         private void UpdateSelected_Click(object sender, RoutedEventArgs e)
@@ -57,7 +54,7 @@ namespace GCManager
 
         public void RefreshList()
         {
-            _modList.GetMods();
+            modList.GetMods();
 
            collectionView = _collectionViewSource.View;
             DG.DataContext = _collectionViewSource.View;
