@@ -42,11 +42,24 @@ namespace GCManager
             profileNameList.Clear();
             modNameList.Clear();
 
-            foreach (string file in profiles)
+            string selectedName = _currentProfile?.name;
+            _currentProfile = null;
+
+            for (int i = 0; i < profiles.Length; i++)
             {
+                string file = profiles[i];
+
                 profileNameList.Add(Path.GetFileNameWithoutExtension(file));
 
-                profileList.Add(Profile.Load(File.ReadAllText(file), Path.GetFileNameWithoutExtension(file)));
+                Profile profile = Profile.Load(File.ReadAllText(file), Path.GetFileNameWithoutExtension(file));
+
+                profileList.Add(profile);
+
+                if (selectedName != null && profile.name == selectedName)
+                {
+                    ProfileCB.SelectedIndex = i;
+                    _currentProfile = profile;
+                }
             }
         }
 
@@ -84,7 +97,6 @@ namespace GCManager
             {
                 string path = Path.Combine(ManagerInfo.Get().GetFullProfileDirectory(), (_currentProfile.name + ".json"));
                 File.Delete(path);
-                _currentProfile = null;
                 RecreateLists();
             }
         }

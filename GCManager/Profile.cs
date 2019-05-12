@@ -53,7 +53,7 @@ namespace GCManager
             entries.Add(new ProfileEntry(localMod));
         }
 
-        public static Profile Load(string json, string fileName = null)
+        public static Profile Load(string json, string name = null)
         {
             var content = JToken.Parse(json);
 
@@ -63,7 +63,7 @@ namespace GCManager
                 {
                     var profile = new Profile();
 
-                    if (fileName == null)
+                    if (name == null)
                     {
 
                         ProfileCreateWindow dialog = new ProfileCreateWindow();
@@ -72,6 +72,8 @@ namespace GCManager
                         else
                             return null;
                     }
+                    else
+                        profile.name = name;
 
                     JArray array = content as JArray;
 
