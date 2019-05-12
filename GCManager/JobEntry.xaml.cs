@@ -55,7 +55,7 @@ namespace GCManager
         }
     }
 
-    public class EntryInfo : INotifyPropertyChanged
+    public partial class JobEntry : UserControl, INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -78,18 +78,11 @@ namespace GCManager
 
         public EntryStatus status { get { return _status; } set { _status = value; NotifyPropertyChanged("status"); } }
 
-    }
-
-    public partial class JobEntry : UserControl
-    {
-        public EntryInfo entryInfo;
-
-        public JobEntry(EntryInfo data)
+        public JobEntry()
         {
             InitializeComponent();
 
-            this.entryInfo = data;
-            this.DataContext = data;
+            this.DataContext = this;
         }
     }
 }

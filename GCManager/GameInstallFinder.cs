@@ -77,7 +77,7 @@ namespace GCManager
                 } while (libraryDir != null);
             }
 
-            MessageBoxResult result = MessageBox.Show("Your Risk of Rain 2 install directory couldn't be found.\nDo you want to provide it manually or not?", "Are you a pirate or is this program just bad?", MessageBoxButton.YesNo);
+            MessageBoxResult result = MessageBox.Show("Your Risk of Rain 2 install directory couldn't be found.\nDo you want to provide it manually or not?", "Warning", MessageBoxButton.YesNo);
 
             if (result != MessageBoxResult.Yes)
                 return null;

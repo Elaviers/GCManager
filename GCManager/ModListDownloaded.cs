@@ -6,40 +6,43 @@ namespace GCManager
 {
     class ModListDownloaded : ModList
     {
-        public override void GetMods()
+        public override void RefreshCollection()
         {
             collection.Clear();
 
             foreach (string dir in Directory.GetDirectories(ManagerInfo.Get().GetFullDownloadDirectory()))
             {
-                try
+                string mfPath = Path.Combine(dir, "manifest.json");
+
+                if (File.Exists(mfPath))
                 {
-                    string json = File.ReadAllText(Path.Combine(dir, "manifest.json"));
-
-                    LocalManifest manifest = JsonConvert.DeserializeObject<LocalManifest>(json);
-
-                    collection.Add(new Mod(manifest, dir));
-                }
-                catch (IOException ex)
-                {
-                    var result = MessageBox.Show(string.Format("Exception reading manifest for \"{0}\":\n{1}\nDo you want to re-download this mod?", 
-                        new DirectoryInfo(dir).Name, 
-                        ex.Message), "What's all this", MessageBoxButton.YesNo);
-
-                    if (result == MessageBoxResult.Yes)
+                    try
                     {
-                        try
-                        {
-                            Directory.Delete(dir, true);
+                        string json = File.ReadAllText(mfPath);
 
-                            Mod mod = ModManager.onlineModList.Find(new DirectoryInfo(dir).Name);
+                        LocalManifest manifest = JsonConvert.DeserializeObject<LocalManifest>(json);
 
-                            mod.isInstalled = false;
-                            ModManager.EnQueueModDownload(mod, mod.version);
-                        }
-                        catch (IOException ex2)
+                        collection.Add(new Mod(manifest, dir));
+                    }
+                    catch (IOException ex)
+                    {
+                        var result = MessageBox.Show($"Exception reading manifest for \"{new DirectoryInfo(dir).Name}\":\n{ex.Message}\nDo you want to re-download this mod?");
+
+                        if (result == MessageBoxResult.Yes)
                         {
-                            MessageBox.Show("Oh no! An exception was thrown when trying to delete the mod, too!\n" + ex2.Message);
+                            try
+                            {
+                                Directory.Delete(dir, true);
+
+                                Mod mod = ModManager.onlineModList.Find(new DirectoryInfo(dir).Name);
+
+                                mod.isInstalled = false;
+                                ModManager.EnQueueModDownload(mod, mod.version);
+                            }
+                            catch (IOException ex2)
+                            {
+                                MessageBox.Show("Oh no! An exception was thrown when trying to delete the mod, too!\n" + ex2.Message);
+                            }
                         }
                     }
                 }

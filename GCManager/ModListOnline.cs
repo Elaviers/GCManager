@@ -6,7 +6,7 @@ namespace GCManager
 {
     class ModListOnline : ModList
     {
-        public override void GetMods()
+        public override void RefreshCollection()
         {
             collection.Clear();
 

@@ -54,7 +54,7 @@ namespace GCManager
 
         public void RefreshList()
         {
-            modList.GetMods();
+            modList.RefreshCollection();
 
            collectionView = _collectionViewSource.View;
             DG.DataContext = _collectionViewSource.View;

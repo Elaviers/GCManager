@@ -26,10 +26,21 @@ namespace GCManager
             ModManager.onlineModList = onlineModList;
             ModManager.downloadedModList = downloadedModList;
 
+            ModManager.LocalModDeletionImminent += PreModDeletion;
+
             OnlineMods.SetModList(onlineModList);
             OnlineMods.RefreshList();
             DownloadedMods.SetModList(downloadedModList);
             DownloadedMods.RefreshList();
+        }
+
+        private void PreModDeletion(Mod localMod)
+        {
+            if (ModManager.selectedModInfo.imageLink == localMod.imageLink)
+            {
+                ModImg.Source = null;
+                ModManager.selectedModInfo.imageLink = null;
+            }
         }
 
         private void Launch_Click(object sender, RoutedEventArgs e)
@@ -50,17 +61,26 @@ namespace GCManager
 
         private void DeleteMods_Click(object sender, RoutedEventArgs e)
         {
+            MessageBoxResult result = MessageBox.Show("This will uninstall all of your mods and delete everything that's been downloaded.\nYou sure about this?", "Oi", MessageBoxButton.YesNo);
+            if (result != MessageBoxResult.Yes)
+                return;
+
+            ModManager.silent = true;
+
             foreach (Mod mod in downloadedModList.collection)
             {
                 ModManager.UninstallMod(mod);
+
+                Jobs.StopUsingUri(mod.imageLink);
 
                 try
                 {
                     Directory.Delete(mod.GetDownloadDirectory(), true);
                 }
-                catch (DirectoryNotFoundException) { }
-                catch (IOException ex) { MessageBox.Show("An IO Exception was thrown\n" + ex.Message); }
+                catch (IOException) { }
             }
+
+            ModManager.silent = false;
         }
 
         private void ChangeGameDir_Click(object sender, RoutedEventArgs e)

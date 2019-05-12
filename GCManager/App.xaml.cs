@@ -1,22 +1,13 @@
 ﻿using Microsoft.Win32;
-using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace GCManager
 {
     public partial class App : Application
     {
-        public static readonly string VERSION = "1.3.4";
+        public static readonly string VERSION = "1.3.5";
 
-        public MainWindow window = null;
-
-        public System.Windows.Controls.ItemCollection JobListItems = null;
         App()
         {
             using (var key = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\Classes\ror2mm"))
@@ -43,16 +34,11 @@ namespace GCManager
             var args = e.Args;
             if (args != null && args.Count() > 0)
             {
-                ModInstallWindow mi = new ModInstallWindow(args[0]);
-                JobListItems = mi.Jobs.LV.Items;
-                mi.Show();
-
+                new ModInstallWindow(args[0]).Show();
                 return;
             }
 
-            window = new MainWindow();
-            JobListItems = window.Jobs.LV.Items;
-            window.Show();
+            new MainWindow().Show();
         }
     }
 }

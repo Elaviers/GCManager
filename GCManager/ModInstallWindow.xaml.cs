@@ -30,7 +30,7 @@ namespace GCManager
 
                 ModManager.onlineModList = onlineModList;
 
-                onlineModList.GetMods();
+                onlineModList.RefreshCollection();
 
                 foreach (Mod mod in onlineModList.collection)
                 {

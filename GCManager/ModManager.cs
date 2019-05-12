@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Net;
+using System.Threading;
 using System.Windows;
 
 namespace GCManager
@@ -17,23 +18,23 @@ namespace GCManager
 
         public static bool silent = false;
 
-        class DownloadInfo
-        {
-            public Mod mod;
-            public string version;
-        }
-
         public static Mod selectedModInfo = new Mod();
 
-        public static List<EntryInfo> jobs = new List<EntryInfo>();
-
-        private static Queue<DownloadInfo> _downloadQueue = new Queue<DownloadInfo>();
+        private static Queue<Mod> _downloadQueue = new Queue<Mod>();
 
 
         private static int _downloadsInProgress = 0;
 
         private static List<string> _priorityInstalls = new List<string>();
-        private static Queue<Mod> _pendingInstalls = new Queue<Mod>();
+        private static Queue<Mod> _installQueue = new Queue<Mod>();
+
+        public static event Action<Mod, float> ModDownloadProgressUpdate;
+        public static event Action<Mod> ModExtractStarted;
+        public static event Action<Mod> ModExtractFinished;
+        public static event Action<Mod> ModInstallStarted;
+        public static event Action<Mod> ModInstallFinished;
+        public static event Action<Mod> ModUninstallFinished;
+        public static event Action<Mod> LocalModDeletionImminent;
 
         public static void UpdateInstalledStatuses()
         {
@@ -41,51 +42,11 @@ namespace GCManager
             downloadedModList?.UpdateModInstalledStatus();
         }
 
-        private static EntryInfo GetEntryInfo(Mod mod)
-        {
-            foreach (EntryInfo info in jobs)
-            {
-                if (info.fullName == mod.fullName)
-                {
-                    System.Windows.Controls.ItemCollection items = ((App)Application.Current).JobListItems;
-
-                    if (((JobEntry)items.GetItemAt(0)).entryInfo.fullName != mod.fullName)
-                    {
-                        foreach (JobEntry item in items)
-                        {
-                            if (item.entryInfo.fullName == mod.fullName)
-                            {
-                                items.Remove(item);
-                                break;
-                            }
-                        }
-
-                        items.Insert(0, new JobEntry(info));
-                    }
-
-                    return info;
-                }
-            }
-
-            EntryInfo newInfo = new EntryInfo();
-            newInfo.fullName = mod.fullName;
-            newInfo.imageLink = mod.imageLink;
-            newInfo.progress = 100;
-
-            if (((App)Application.Current).JobListItems != null) {
-                jobs.Insert(0, newInfo);
-
-                ((App)Application.Current).JobListItems.Insert(0, new JobEntry(newInfo));
-            }
-
-            return newInfo;
-        }
-
         public static void ActivateMod(Mod mod, string version = null)
         {
             string downloadDir = mod.GetDownloadDirectory();
 
-            if (!Directory.Exists(downloadDir))
+            if (!mod.IsDownloaded())
             {
                 EnQueueModDownload(mod, version ?? mod.version);
                 return;
@@ -103,6 +64,7 @@ namespace GCManager
                     if (version != manifest.version_number)
                     {
                         Directory.Delete(downloadDir, true);
+                        mod.installOnDownloaded = true;
                         EnQueueModDownload(mod, version);
                     }
                     else
@@ -113,41 +75,29 @@ namespace GCManager
                     return;
                 }
                 else
-                    MessageBox.Show($"\"{mod.fullName}\" has a directory, but doesn't have a manifest!\nWhat's the deal with that?", "Oh No!", MessageBoxButton.OK);
+                    MessageBox.Show($"\"{mod.fullName}\" is downloaded, but doesn't have a manifest!\nThis should never happen, good job.", "Oh No!", MessageBoxButton.OK);
             }
 
-            mod.isInstalled = true; //Hacky way of flagging to install after download/extract
             InstallMod(mod, mod.version);
         }
 
         public static void EnQueueModDownload(Mod mod, string version)
         {
-            if (_downloadsInProgress < MAX_CONCURRENT_DOWNLOADS)
-                _DownloadMod(mod, version);
-            else
-            {
-                DownloadInfo info = new DownloadInfo();
-                info.mod = mod;
-                info.version = version;
+            Mod downloadMod = new Mod(mod);
+            mod.version = version;
 
-                _downloadQueue.Enqueue(info);
-            }
+            if (_downloadsInProgress < MAX_CONCURRENT_DOWNLOADS)
+                _DownloadMod(downloadMod);
+            else
+                _downloadQueue.Enqueue(downloadMod);
         }
 
-        private static void _DownloadMod(Mod mod, string version)
+        private static void _DownloadMod(Mod mod)
         {
-            EntryInfo info = GetEntryInfo(mod);
-            info.version = version;
-            info.progress = 0;
-            info.status = EntryStatus.DOWNLOADING;
-            info.version = version;
-
             WebClient client = new WebClient();
 
             client.DownloadProgressChanged += DownloadProgressUpdate;
             client.DownloadDataCompleted += _DownloadComplete;
-
-            string modVersion = version ?? mod.version;
 
             _downloadsInProgress++;
 
@@ -157,25 +107,36 @@ namespace GCManager
         private static void _DownloadComplete(object sender, DownloadDataCompletedEventArgs args)
         {
             _downloadsInProgress--;
-            
+
             if (_downloadQueue.Count > 0)
             {
-                DownloadInfo info = _downloadQueue.Dequeue();
-                _DownloadMod(info.mod, info.version);
+                _DownloadMod(_downloadQueue.Dequeue());
             }
+
+            downloadedModList?.RefreshCollection();
 
             UnzipMod((Mod)args.UserState, args.Result);
         }
 
+        private static void DownloadProgressUpdate(object sender, DownloadProgressChangedEventArgs args)
+        {
+            Mod mod = (Mod)args.UserState;
+
+            ModDownloadProgressUpdate(mod, args.ProgressPercentage);
+        }
+
         public static void UnzipMod(Mod mod, byte[] zipData)
         {
-            GetEntryInfo(mod).status = EntryStatus.EXTRACTING;
+            ModExtractStarted(mod);
 
             if (mod != null && zipData.Length > 0)
             {
                 ZipArchive zip = new ZipArchive(new MemoryStream(zipData));
 
                 string path = mod.GetDownloadDirectory();
+
+                if (Directory.Exists(path))
+                    Directory.Delete(path, true);
 
                 foreach (ZipArchiveEntry entry in zip.Entries)
                 {
@@ -186,7 +147,7 @@ namespace GCManager
                     if (Path.GetExtension(entryPath).Length != 0)
                     {
                         Stream input = entry.Open();
-                        FileStream output = File.Create(entryPath);
+                        FileStream output = File.OpenWrite(entryPath);
 
                         input.CopyTo(output);
 
@@ -197,36 +158,23 @@ namespace GCManager
 
                 zip.Dispose();
 
-                if (mod.isInstalled)
+                if (mod.installOnDownloaded)
                     InstallMod(mod);
                 else
                 {
                     mod.isInstalled = mod.CheckIfInstalled();
-                    GetEntryInfo(mod).status = EntryStatus.EXTRACTED;
+                    ModExtractFinished(mod);
                 }
             }
         }
 
-        private static void DownloadProgressUpdate(object sender, DownloadProgressChangedEventArgs args)
-        {
-            Mod mod = (Mod)args.UserState;
-
-            var info = GetEntryInfo(mod);
-
-            info.progress = args.ProgressPercentage;
-        }
-
         public static void InstallMod(Mod mod, string version = null)
         {
-            var info = GetEntryInfo(mod);
-            info.status = EntryStatus.INSTALLING;
-            if (version != null)
-                info.version = version;
-
+            ModInstallStarted(mod);
 
             if (_priorityInstalls.Count > 0 && !_priorityInstalls.Contains(mod.fullName))
             {
-                _pendingInstalls.Enqueue(mod);
+                _installQueue.Enqueue(mod);
                 return;
             }
 
@@ -247,15 +195,17 @@ namespace GCManager
                     }
                     else if (!dependencyMod.CheckIfInstalled())
                     {
+                        MessageBoxResult result = MessageBoxResult.Yes;
+
                         if (!silent)
                         {
-                            MessageBoxResult result = MessageBox.Show(
-                                $"This mod requires the dependency \"{dependency}\".\nDo you want to install this? (You probably should!)",
+                            result = MessageBox.Show(
+                                $"This mod depends on \"{dependency}\".\nDo you want to install this first?",
                                 "You must install additional mods", MessageBoxButton.YesNo);
-
-                            if (result == MessageBoxResult.Yes || silent)
-                                ActivateMod(dependencyMod);
                         }
+
+                        if (result == MessageBoxResult.Yes)
+                            ActivateMod(dependencyMod);
                     }
 
                     _priorityInstalls.Remove(dependencyFullName);
@@ -265,11 +215,12 @@ namespace GCManager
             }
 
             mod.Install();
-            GetEntryInfo(mod).status = EntryStatus.INSTALLED;
 
-            if (_pendingInstalls.Count > 0)
+            ModInstallFinished(mod);
+
+            if (_installQueue.Count > 0)
             {
-                InstallMod(_pendingInstalls.Dequeue());
+                InstallMod(_installQueue.Dequeue());
             }
 
             UpdateInstalledStatuses();
@@ -277,8 +228,8 @@ namespace GCManager
 
         public static void UninstallMod(Mod mod)
         {
-            mod.Uninstall();
-            GetEntryInfo(mod).status = EntryStatus.UNINSTALLED;
+            mod.Uninstall(silent);
+            ModUninstallFinished(mod);
 
             UpdateInstalledStatuses();
         }
@@ -292,7 +243,13 @@ namespace GCManager
                 if (localMod.fullName != "bbepis-BepInExPack")
                     UninstallMod(localMod);
 
-                Directory.Delete(localMod.GetDownloadDirectory(), true);
+                LocalModDeletionImminent(localMod);
+
+                try
+                {
+                    Directory.Delete(localMod.GetDownloadDirectory(), true);
+                }
+                catch (IOException) { }
 
                 ActivateMod(onlineMod);
             }

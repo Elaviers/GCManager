@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GCManager"
         mc:Ignorable="d"
-        Title="GCManager Mod Installer" Height="450" Width="800" Loaded="Window_Loaded">
+        Title="GCManager Mod Installer" Height="450" Width="300" Loaded="Window_Loaded">
     <Grid>
         <local:JobList x:Name="Jobs"/>
     </Grid>

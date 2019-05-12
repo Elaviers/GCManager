@@ -6,7 +6,7 @@ namespace GCManager
     {
         public ObservableCollection<Mod> collection = new ObservableCollection<Mod>();
 
-        public abstract void GetMods();
+        public abstract void RefreshCollection();
 
         public void UpdateModInstalledStatus()
         {

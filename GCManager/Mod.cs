@@ -38,6 +38,13 @@ namespace GCManager
         public string notes { get; set; }
         public bool isInstalled { get { return _isInstalled; } set { _isInstalled = value; NotifyPropertyChanged("isInstalled"); } }
 
+        public bool installOnDownloaded = true;
+
+        public bool IsDownloaded()
+        {
+            return File.Exists(Path.Combine(GetDownloadDirectory(), "manifest.json"));
+        }
+
         public string GetDownloadDirectory()
         {
             return Path.Combine(ManagerInfo.Get().GetFullDownloadDirectory(), this.fullName);
@@ -94,9 +101,9 @@ namespace GCManager
             this.isInstalled = true;
         }
 
-        public void Uninstall()
+        public void Uninstall(bool silent = false)
         {
-            Uninstall(this.fullName);
+            Uninstall(this.fullName, silent);
 
             this.isInstalled = false;
         }
@@ -193,6 +200,20 @@ namespace GCManager
             this.dependencies = mf.dependencies;
 
             this.isInstalled = CheckIfInstalled();
+        }
+
+        public Mod(Mod o)
+        {
+            name = o.name;
+            fullName = o.fullName;
+            author = o.author;
+            description = o.description;
+            version = o.version;
+            modLink = o.modLink;
+            authorLink = o.modLink;
+            imageLink = o.imageLink;
+            dependencies = o.dependencies;
+            isInstalled = o.isInstalled;
         }
     }
 }
