@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using System.Diagnostics;
 using System.IO;
+using System.Windows.Media.Imaging;
 
 namespace GCManager
 {
@@ -18,7 +19,7 @@ namespace GCManager
 
             ModManager.selectedModInfo.name = "GCManager";
             ModManager.selectedModInfo.author = "Risk of Rain 2 Mod Manager";
-            ModManager.selectedModInfo.imageLink = new System.Uri("pack://application:,,,/commando.png");
+            ModManager.selectedModInfo.image = new BitmapImage(new System.Uri("pack://application:,,,/commando.png"));
             this.DataContext = ModManager.selectedModInfo;
 
             InstallDirText.Text = ManagerInfo.Get().installDir;
@@ -36,10 +37,10 @@ namespace GCManager
 
         private void PreModDeletion(Mod localMod)
         {
-            if (ModManager.selectedModInfo.imageLink == localMod.imageLink)
+            if (ModManager.selectedModInfo.image == localMod.image)
             {
                 ModImg.Source = null;
-                ModManager.selectedModInfo.imageLink = null;
+                ModManager.selectedModInfo.image = null;
             }
         }
 
@@ -70,8 +71,6 @@ namespace GCManager
             foreach (Mod mod in downloadedModList.collection)
             {
                 ModManager.UninstallMod(mod);
-
-                Jobs.StopUsingUri(mod.imageLink);
 
                 try
                 {

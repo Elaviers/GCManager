@@ -16,7 +16,7 @@
             <ColumnDefinition Width="64"/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
-        <Image Name="ModImg" Source="{Binding imageLink}"/>
+        <Image Name="ModImg" Source="{Binding image}"/>
         <ProgressBar Grid.Column="1" Value="{Binding progress, FallbackValue='88'}"/>
 
         <Viewbox Grid.Column="1" Margin="10,0" VerticalAlignment="Top" Height="26" HorizontalAlignment="Left">

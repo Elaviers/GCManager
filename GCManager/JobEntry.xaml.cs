@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Media.Imaging;
 
 namespace GCManager
 {
@@ -70,7 +71,7 @@ namespace GCManager
 
         public float progress { get { return _progress; } set { _progress = value; NotifyPropertyChanged("progress"); } }
 
-        public Uri imageLink { get; set; }
+        public BitmapImage image { get; set; }
 
         public string fullName { get; set; }
 

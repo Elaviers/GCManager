@@ -21,7 +21,6 @@ namespace GCManager
             ModManager.ModInstallStarted += OnModInstalling;
             ModManager.ModInstallFinished += OnModInstalled;
             ModManager.ModUninstallFinished += OnModUninstalled;
-            ModManager.LocalModDeletionImminent += PreLocalModDeletion;
         }
 
         private void Clear_Click(object sender, RoutedEventArgs e)
@@ -55,32 +54,13 @@ namespace GCManager
                     entry.fullName = mod.fullName;
                     entry.version = mod.version;
                     entry.progress = 100;
+                    entry.image = mod.image;
                 }
 
                 lvItems.Insert(0, entry);
             }
 
-            if (entry.imageLink == null)
-                entry.imageLink = mod.imageLink;
-
             return entry;
-        }
-
-        public void StopUsingUri(Uri imageLink)
-        {
-            foreach (JobEntry entry in lvItems)
-            {
-                if (entry.imageLink == imageLink)
-                {
-                    entry.ModImg.Source = null;
-                    entry.imageLink = null;
-                }
-            }
-        }
-
-        private void PreLocalModDeletion(Mod localMod)
-        {
-            StopUsingUri(localMod.imageLink);
         }
 
         private void OnModDownloading(Mod mod, float progress)

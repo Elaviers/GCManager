@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.ComponentModel;
 using System.Windows;
+using System.Windows.Media.Imaging;
 
 namespace GCManager
 {
@@ -16,7 +17,7 @@ namespace GCManager
         }
 
         private string _name, _author, _description;
-        private Uri _imageLink;
+        private BitmapImage _image;
         private bool _isInstalled;
 
         public string name { get { return _name; } set { _name = value; NotifyPropertyChanged("name"); } }
@@ -30,7 +31,7 @@ namespace GCManager
         public Uri modLink { get; set; }
         public Uri authorLink { get; set; }
 
-        public Uri imageLink { get { return _imageLink; } set { _imageLink = value; NotifyPropertyChanged("imageLink"); } }
+        public BitmapImage image { get { return _image; } set { _image = value; NotifyPropertyChanged("image"); } }
 
         public string[] dependencies { get; set; }
 
@@ -173,7 +174,7 @@ namespace GCManager
 
             this.modLink = new Uri(mf.package_url);
             this.authorLink = new Uri("https://thunderstore.io/package/" + mf.owner);
-            this.imageLink = new Uri(latestVersion.icon);
+            this.image = new BitmapImage(new Uri(latestVersion.icon));
 
             this.dependencies = latestVersion.dependencies;
 
@@ -195,7 +196,14 @@ namespace GCManager
                 this.modLink = new Uri(mf.website_url);
 
             this.authorLink = new Uri("https://thunderstore.io/package/" + this.author);
-            this.imageLink = new Uri(Path.Combine(downloadDir, "icon.png"));
+
+            BitmapImage icon = new BitmapImage();
+            icon.BeginInit();
+            icon.CacheOption = BitmapCacheOption.OnLoad;
+            icon.UriSource = new Uri(Path.Combine(downloadDir, "icon.png"));
+            icon.EndInit();
+
+            this.image = icon;
 
             this.dependencies = mf.dependencies;
 
@@ -211,7 +219,7 @@ namespace GCManager
             version = o.version;
             modLink = o.modLink;
             authorLink = o.modLink;
-            imageLink = o.imageLink;
+            image = o.image;
             dependencies = o.dependencies;
             isInstalled = o.isInstalled;
         }

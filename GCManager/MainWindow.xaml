@@ -37,7 +37,7 @@
                 </Grid.ColumnDefinitions>
 
                 <Canvas Background="Black" Grid.ColumnSpan="2"/>
-                <Image Name="ModImg" Source="{Binding imageLink, FallbackValue='commando.ico'}" Grid.Column="1" VerticalAlignment="Top" Height="120"/>
+                <Image Name="ModImg" Source="{Binding image, FallbackValue='commando.ico'}" Grid.Column="1" VerticalAlignment="Top" Height="120"/>
                 <Viewbox Margin="10,10,0,0" Height="28" VerticalAlignment="Top" HorizontalAlignment="Left">
                 <TextBlock Text="{Binding name, FallbackValue='Scaling text is cool!'}" FontSize="24" FontWeight="Bold" FontFamily="Lucida Console" TextDecorations="Underline" Foreground="#FF00B9FF" HorizontalAlignment="Left"/>
                 </Viewbox>

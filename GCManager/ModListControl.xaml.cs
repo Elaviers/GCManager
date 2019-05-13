@@ -82,7 +82,7 @@ namespace GCManager
                 ModManager.selectedModInfo.name = mod.name;
                 ModManager.selectedModInfo.author = mod.author;
                 ModManager.selectedModInfo.description = mod.description;
-                ModManager.selectedModInfo.imageLink = mod.imageLink;
+                ModManager.selectedModInfo.image = mod.image;
                 ModManager.selectedModInfo.isInstalled = mod.isInstalled;
             }
         }
