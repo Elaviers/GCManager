@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Net;
-using System.Threading;
 using System.Windows;
 
 namespace GCManager
@@ -113,8 +112,6 @@ namespace GCManager
                 _DownloadMod(_downloadQueue.Dequeue());
             }
 
-            downloadedModList?.RefreshCollection();
-
             UnzipMod((Mod)args.UserState, args.Result);
         }
 
@@ -158,13 +155,14 @@ namespace GCManager
 
                 zip.Dispose();
 
+                downloadedModList?.RefreshCollection();
+
+                ModExtractFinished(mod);
+
                 if (mod.installOnDownloaded)
                     InstallMod(mod);
                 else
-                {
                     mod.isInstalled = mod.CheckIfInstalled();
-                    ModExtractFinished(mod);
-                }
             }
         }
 
@@ -187,8 +185,6 @@ namespace GCManager
                 {
                     Mod dependencyMod = onlineModList.Find(dependencyFullName);
 
-                    _priorityInstalls.Add(dependencyFullName);
-
                     if (dependencyMod == null)
                     {
                         MessageBox.Show($"Error: Somehow, the dependency \"{dependency}\" could not be found in the online mod list.\nHmm... maybe you could try refreshing the online mod list?", "Uh oh", MessageBoxButton.OK);
@@ -196,6 +192,8 @@ namespace GCManager
                     else if (!dependencyMod.CheckIfInstalled())
                     {
                         MessageBoxResult result = MessageBoxResult.Yes;
+
+                        _priorityInstalls.Add(dependencyFullName);
 
                         if (!silent)
                         {
@@ -205,18 +203,24 @@ namespace GCManager
                         }
 
                         if (result == MessageBoxResult.Yes)
+                        {
                             ActivateMod(dependencyMod);
+                            _installQueue.Enqueue(mod);
+                            return;
+                        }
+                        else
+                        {
+                            _priorityInstalls.Remove(dependencyFullName);
+                        }
                     }
-
-                    _priorityInstalls.Remove(dependencyFullName);
                 }
-                else
-                    MessageBox.Show("The dependency mod list is not set", "How did this even hapen?!", MessageBoxButton.OK);
             }
 
             mod.Install();
 
             ModInstallFinished(mod);
+
+            _priorityInstalls.Remove(mod.fullName);
 
             if (_installQueue.Count > 0)
             {

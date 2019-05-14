@@ -80,6 +80,8 @@ namespace GCManager
             }
 
             ModManager.silent = false;
+
+            downloadedModList.RefreshCollection();
         }
 
         private void ChangeGameDir_Click(object sender, RoutedEventArgs e)
